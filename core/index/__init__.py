@@ -105,6 +105,41 @@ def delete_vectors(conn: sqlite3.Connection, chunk_ids) -> None:
 # --------------------------------------------------------------------------------
 
 
+def forget_source(conn: sqlite3.Connection, source_id: int) -> dict[str, int]:
+    """Remove a source and every document/chunk/vector it owns (PLAN.md §9, §10).
+
+    ``documents`` and ``chunks`` cascade from ``sources`` (foreign_keys is on), but
+    ``chunks_vec`` has no cascade, so its rows are deleted explicitly first. The
+    ``VACUUM`` that §9 mentions is a Phase 7 polish step, deliberately not run here
+    because it rewrites the database while the worker holds a second connection.
+    """
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        chunk_ids = [
+            r["id"]
+            for r in conn.execute(
+                """SELECT c.id FROM chunks c
+                   JOIN documents d ON d.id = c.document_id
+                   WHERE d.source_id = ?""",
+                (source_id,),
+            ).fetchall()
+        ]
+        doc_count = conn.execute(
+            "SELECT COUNT(*) FROM documents WHERE source_id = ?", (source_id,)
+        ).fetchone()[0]
+        if chunk_ids:
+            conn.executemany(
+                "DELETE FROM chunks_vec WHERE chunk_id = ?", [(c,) for c in chunk_ids]
+            )
+        conn.execute("DELETE FROM sources WHERE id = ?", (source_id,))
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    else:
+        conn.execute("COMMIT")
+    return {"documents": doc_count, "chunks": len(chunk_ids)}
+
+
 def stats(conn: sqlite3.Connection) -> dict[str, Any]:
     """Index statistics for the status endpoint."""
     counts = {
@@ -142,6 +177,7 @@ __all__ = [
     "unpack_embedding",
     "upsert_vector",
     "delete_vectors",
+    "forget_source",
     "stats",
     "transaction",
     "set_meta",

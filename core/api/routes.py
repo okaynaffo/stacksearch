@@ -13,8 +13,9 @@ import time
 from contextlib import nullcontext
 from typing import Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 
 from core.api.deps import require_token
 from core.api.events import bus, event_stream
@@ -24,7 +25,10 @@ from core.config import (
     get_settings,
     model_path,
 )
-from core.index import stats
+from core.index import forget_source, stats
+
+#: Valid source kinds (PLAN.md §6.2).
+SOURCE_KINDS = ("files", "pdf", "email", "email_imap", "browser", "chat", "code")
 
 #: Token enforcement lives on the router, not on individual routes (PLAN.md §9). Every
 #: route in this module therefore requires the per-launch token, and a route added later
@@ -91,6 +95,17 @@ async def status(request: Request) -> dict[str, Any]:
                 "path": str(gguf),
                 "reasoning_enabled": settings.llm_enable_thinking,
             },
+            # The §11.3 model picker shows the §2.1 memory cost of each choice before the
+            # user switches, which the single `answer_llm` entry above cannot.
+            "answer_llm_options": [
+                {
+                    "key": key,
+                    "label": model.label,
+                    "size_gb": model.size_gb,
+                    "present": model_path(key).exists(),
+                }
+                for key, model in LLM_MODELS.items()
+            ],
             "reranker": {
                 "key": settings.reranker,
                 "enabled": settings.reranker not in {"", "none", "off", "noop"},
@@ -253,6 +268,239 @@ async def reindex_source(request: Request, source_id: int) -> dict[str, Any]:
         priority=settings.queue.priority_reindex,
     )
     return {"job_id": job_id, "source_id": source_id}
+
+
+class SourceCreate(BaseModel):
+    """Body for ``POST /sources`` (PLAN.md §10)."""
+
+    kind: str
+    name: str
+    config: dict[str, Any] = Field(default_factory=dict)
+    enabled: bool = True
+
+
+class SourcePatch(BaseModel):
+    """Body for ``PATCH /sources/{id}`` — only the provided fields change."""
+
+    name: str | None = None
+    config: dict[str, Any] | None = None
+    enabled: bool | None = None
+
+
+def _source_summary(conn, row) -> dict[str, Any]:
+    """One source row plus the counts the settings UI shows (§11.3)."""
+    sid = row["id"]
+    docs = conn.execute(
+        "SELECT COUNT(*) FROM documents WHERE source_id = ? AND status != 'deleted'", (sid,)
+    ).fetchone()[0]
+    errors = conn.execute(
+        "SELECT COUNT(*) FROM documents WHERE source_id = ? AND status = 'error'", (sid,)
+    ).fetchone()[0]
+    return {
+        "id": sid,
+        "kind": row["kind"],
+        "name": row["name"],
+        "config": json.loads(row["config_json"]),
+        "enabled": bool(row["enabled"]),
+        "last_sync_at": row["last_sync_at"],
+        "documents": docs,
+        "errors": errors,
+    }
+
+
+@router.get("/sources")
+async def list_sources(request: Request) -> dict[str, Any]:
+    """Every configured source with per-source counts (PLAN.md §10, §11.3)."""
+    rows = request.app.state.index.conn.execute(
+        "SELECT * FROM sources ORDER BY id"
+    ).fetchall()
+    return {"sources": [_source_summary(request.app.state.index.conn, r) for r in rows]}
+
+
+@router.post("/sources", status_code=201)
+async def create_source(request: Request, body: SourceCreate) -> dict[str, Any]:
+    """Add a source and kick off its first scan (PLAN.md §10, §11.1)."""
+    from core.jobs import queue as job_queue
+
+    if body.kind not in SOURCE_KINDS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"unknown source kind {body.kind!r}; expected one of {SOURCE_KINDS}",
+        )
+    conn = request.app.state.index.conn
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        conn.execute(
+            "INSERT INTO sources(kind, name, config_json, enabled) VALUES (?, ?, ?, ?)",
+            (body.kind, body.name, json.dumps(body.config), int(body.enabled)),
+        )
+        source_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    else:
+        conn.execute("COMMIT")
+
+    settings = get_settings()
+    job_id = None
+    if body.enabled:
+        job_id = job_queue.enqueue(
+            conn,
+            "scan",
+            {"source_id": source_id, "child_priority": settings.queue.priority_bulk},
+            priority=settings.queue.priority_bulk,
+        )
+    row = conn.execute("SELECT * FROM sources WHERE id = ?", (source_id,)).fetchone()
+    return {"source": _source_summary(conn, row), "job_id": job_id}
+
+
+@router.patch("/sources/{source_id}")
+async def patch_source(request: Request, source_id: int, body: SourcePatch) -> dict[str, Any]:
+    """Enable/disable or edit a source; re-scan when config changes (PLAN.md §10)."""
+    from core.jobs import queue as job_queue
+
+    conn = request.app.state.index.conn
+    row = conn.execute("SELECT * FROM sources WHERE id = ?", (source_id,)).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"unknown source {source_id}")
+
+    fields: list[str] = []
+    params: list[Any] = []
+    if body.name is not None:
+        fields.append("name = ?")
+        params.append(body.name)
+    if body.config is not None:
+        fields.append("config_json = ?")
+        params.append(json.dumps(body.config))
+    if body.enabled is not None:
+        fields.append("enabled = ?")
+        params.append(int(body.enabled))
+    if fields:
+        params.append(source_id)
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            conn.execute(f"UPDATE sources SET {', '.join(fields)} WHERE id = ?", params)
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
+        else:
+            conn.execute("COMMIT")
+
+    # A config or enable change invalidates what we know: rescan from scratch.
+    if body.config is not None or body.enabled:
+        settings = get_settings()
+        job_queue.enqueue(
+            conn,
+            "scan",
+            {"source_id": source_id, "child_priority": settings.queue.priority_bulk},
+            priority=settings.queue.priority_live_change,
+        )
+    updated = conn.execute("SELECT * FROM sources WHERE id = ?", (source_id,)).fetchone()
+    return {"source": _source_summary(conn, updated)}
+
+
+@router.delete("/sources/{source_id}")
+async def delete_source(request: Request, source_id: int) -> dict[str, Any]:
+    """Forget a source and every document, chunk, and vector it owns (§9, §10)."""
+    conn = request.app.state.index.conn
+    row = conn.execute("SELECT id FROM sources WHERE id = ?", (source_id,)).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"unknown source {source_id}")
+    removed = forget_source(conn, source_id)
+    return {"forgotten": source_id, **removed}
+
+
+class BatteryPolicyBody(BaseModel):
+    """Body for ``POST /policy/battery``."""
+
+    low: bool
+
+
+@router.post("/policy/battery")
+async def set_battery_policy(request: Request, body: BatteryPolicyBody) -> dict[str, Any]:
+    """Toggle the battery-pause signal (PLAN.md §6.6, §11.3)."""
+    app_policy = getattr(request.app.state, "policy", None)
+    if app_policy is None:
+        raise HTTPException(status_code=503, detail="policy unavailable")
+    app_policy.set_battery_low(body.low)
+    return {"battery_low": body.low, "paused_reason": app_policy.paused_reason()}
+
+
+class IdleTimeoutBody(BaseModel):
+    """Body for ``POST /policy/idle-timeout``."""
+
+    minutes: int
+
+
+@router.post("/policy/idle-timeout")
+async def set_idle_timeout(request: Request, body: IdleTimeoutBody) -> dict[str, Any]:
+    """Update the LLM idle-unload window (PLAN.md §6.7, §11.3)."""
+    from core.llm.server import get_supervisor
+
+    if body.minutes < 1:
+        raise HTTPException(status_code=422, detail="minutes must be >= 1")
+    supervisor = getattr(request.app.state, "llm_supervisor", None) or get_supervisor()
+    request.app.state.llm_supervisor = supervisor
+    supervisor.set_idle_timeout(body.minutes)
+    return {"minutes": body.minutes}
+
+
+@router.get("/documents/{document_id}")
+async def get_document(request: Request, document_id: int) -> dict[str, Any]:
+    """Document metadata plus its open URI for the results list (PLAN.md §10, §11.2)."""
+    conn = request.app.state.index.conn
+    row = conn.execute("SELECT * FROM documents WHERE id = ?", (document_id,)).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"unknown document {document_id}")
+    chunks = conn.execute(
+        "SELECT COUNT(*) FROM chunks WHERE document_id = ?", (document_id,)
+    ).fetchone()[0]
+    return {
+        "id": row["id"],
+        "source_id": row["source_id"],
+        "uri": row["uri"],
+        "title": row["title"],
+        "author": row["author"],
+        "mime": row["mime"],
+        "modified_at": row["modified_at"],
+        "status": row["status"],
+        "error": row["error"],
+        "chunks": chunks,
+    }
+
+
+class AnswerModelChoice(BaseModel):
+    """Body for ``POST /models/answer`` (PLAN.md §11.3 model picker)."""
+
+    key: str
+
+
+@router.post("/models/answer")
+async def set_answer_model(request: Request, body: AnswerModelChoice) -> dict[str, Any]:
+    """Switch the answer LLM between the pinned 4B and 8B (PLAN.md §4.1, §11.3).
+
+    Switching unloads the resident model so the next question lazy-loads the chosen one
+    (§8.4); the switch is a no-op, and the warm model is kept, when the key is unchanged.
+    """
+    from core.llm.server import get_supervisor
+
+    if body.key not in LLM_MODELS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"unknown model key {body.key!r}; expected one of {sorted(LLM_MODELS)}",
+        )
+    supervisor = getattr(request.app.state, "llm_supervisor", None) or get_supervisor()
+    request.app.state.llm_supervisor = supervisor
+    changed = supervisor.model_key != body.key
+    if changed:
+        supervisor.stop("model switch")
+        supervisor.model_key = body.key
+        supervisor.state.model_key = body.key
+    return {
+        "key": body.key,
+        "changed": changed,
+        "running": supervisor.state.running,
+    }
 
 
 @router.get("/health")

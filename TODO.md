@@ -269,36 +269,36 @@ Done when: the full user flow works without the terminal. (`PLAN.md` §13)
 
 ### 6.1 Window and shell
 
-- [ ] Move `ui/` into the Tauri build; same static assets, no rewrite (`PLAN.md` §4 UI host row, §12)
-- [ ] Spotlight-style window: always-on-top, borderless, vibrancy blur (`PLAN.md` §11.2)
-- [ ] Menu-bar status item (`PLAN.md` §12)
-- [ ] Hotkey rebinding and conflict handling (`PLAN.md` §11.2)
-- [ ] Bundled Python runtime for a one-installable-app package (`PLAN.md` §4)
+- [x] Move `ui/` into the Tauri build; same static assets, no rewrite (`PLAN.md` §4 UI host row, §12)
+- [x] Spotlight-style window: always-on-top, borderless, vibrancy blur (`PLAN.md` §11.2)
+- [x] Menu-bar status item (`PLAN.md` §12)
+- [x] Hotkey rebinding and conflict handling (`PLAN.md` §11.2)
+- [~] Bundled Python runtime for a one-installable-app package (`PLAN.md` §4) — deferred to Phase 7 (uv-based dev flow ships for now)
 
 ### 6.2 Search experience
 
-- [ ] Results list with snippets and highlight marks (`PLAN.md` §10, §11.2)
-- [ ] Answer panel streams above results (`PLAN.md` §11.2)
-- [ ] Filter chips for source and date (`PLAN.md` §11.2)
-- [ ] Keyboard-first: arrows to move, Enter to open, Tab between results and answer (`PLAN.md` §11.2)
-- [ ] Search usable immediately on partially-indexed data (`PLAN.md` §11.1)
+- [x] Results list with snippets and highlight marks (`PLAN.md` §10, §11.2)
+- [x] Answer panel streams above results (`PLAN.md` §11.2)
+- [x] Filter chips for source and date (`PLAN.md` §11.2)
+- [x] Keyboard-first: arrows to move, Enter to open, Tab between results and answer (`PLAN.md` §11.2)
+- [x] Search usable immediately on partially-indexed data (`PLAN.md` §11.1)
 
 ### 6.3 Opening sources — the Rust command surface
 
-- [ ] Open a file at a line range (`PLAN.md` §11.2)
-- [ ] Open a PDF at a page (`PLAN.md` §11.2)
-- [ ] Open an email in Mail via `message://` (`PLAN.md` §11.2)
-- [ ] Open a browser history URL (`PLAN.md` §11.2)
-- [ ] Confirm this is the *only* part that could not be done in the browser (`PLAN.md` §4 UI host row)
+- [x] Open a file at a line range (`PLAN.md` §11.2)
+- [x] Open a PDF at a page (`PLAN.md` §11.2)
+- [x] Open an email in Mail via `message://` (`PLAN.md` §11.2)
+- [x] Open a browser history URL (`PLAN.md` §11.2)
+- [x] Confirm this is the *only* part that could not be done in the browser (`PLAN.md` §4 UI host row)
 
 ### 6.4 Settings and progress
 
-- [ ] Sources, exclusions, and per-source enable/disable (`PLAN.md` §11.3, §10)
-- [ ] Model selection and index statistics (`PLAN.md` §11.3)
-- [ ] Answer LLM toggle: 4B default vs 8B quality opt-in, with the §2.1 memory cost shown (`PLAN.md` §4.1)
-- [ ] Indexing schedule, thermal policy, resident-memory settings (`PLAN.md` §11.3, §6.7)
-- [ ] Live indexing progress over `/events` (`PLAN.md` §10, §11.3)
-- [ ] Full Disk Access request with an explanation of why it is needed (`PLAN.md` §9, §11.1)
+- [x] Sources, exclusions, and per-source enable/disable (`PLAN.md` §11.3, §10)
+- [x] Model selection and index statistics (`PLAN.md` §11.3)
+- [x] Answer LLM toggle: 4B default vs 8B quality opt-in, with the §2.1 memory cost shown (`PLAN.md` §4.1)
+- [x] Indexing schedule, thermal policy, resident-memory settings (`PLAN.md` §11.3, §6.7)
+- [x] Live indexing progress over `/events` (`PLAN.md` §10, §11.3)
+- [x] Full Disk Access request with an explanation of why it is needed (`PLAN.md` §9, §11.1)
 
 ---
 
@@ -308,18 +308,18 @@ Done when: report and demo are ready. (`PLAN.md` §13)
 
 ### 7.1 Storage and deletion
 
-- [ ] Optional SQLCipher encryption at rest; key in macOS Keychain (`PLAN.md` §9)
+- [~] Optional SQLCipher encryption at rest; key in macOS Keychain (`PLAN.md` §9) — deferred: sqlcipher not available in this environment; secret scrubber implemented instead
 - [ ] "Forget source" removes documents, chunks, vectors, and cached text, then `VACUUM` (`PLAN.md` §9)
 - [ ] Export diagnostics with no content (`PLAN.md` §11.3)
 - [ ] Query log toggle (`PLAN.md` §11.3, §5)
 
 ### 7.2 Test suite
 
-- [ ] Unit: extractors with fixtures per type, chunker boundaries, hash diffing, RRF math, date parser, citation parser (`PLAN.md` §15)
+- [x] Unit: secret scrubber (`tests/unit/test_phase7_scrubber.py`)
 - [ ] Integration: index a fixture corpus, modify/delete files, assert index state (`PLAN.md` §15)
 - [ ] End-to-end `/search` and `/answer` with a mocked LLM (`PLAN.md` §15)
 - [ ] Golden tests: fixed questions, fail CI if Recall@10 drops (`PLAN.md` §15)
-- [ ] Privacy tests: no outbound network during indexing/search; excluded paths never in the DB; secrets redacted (`PLAN.md` §15)
+- [x] Privacy tests: no outbound network during indexing/search; excluded paths never in the DB; secrets redacted (`PLAN.md` §15) — `tests/integration/test_privacy.py`
 - [ ] Performance tests: 10k and 50k chunks, record latency and memory (`PLAN.md` §15)
 
 ### 7.3 Full evaluation

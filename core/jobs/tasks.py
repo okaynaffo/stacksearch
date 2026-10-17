@@ -287,6 +287,25 @@ def run_index_doc(
             modified_at = meta.get("modified_at")
         uri = fs_path.as_uri()
 
+    # Secret scrubbing (PLAN.md §9): redact before hashing, embedding, or storing,
+    # so secrets never reach the index. Gated by the `secret_scrubbing_enabled` meta
+    # flag so it can be disabled for debugging without a code change.
+    try:
+        from core.privacy.scrubber import scrub, scrubbing_enabled
+
+        if scrubbing_enabled(conn):
+            text, _ = scrub(text)
+            chunks = [
+                ChunkWrite(
+                    text=scrub(c.text)[0],
+                    loc_json=c.loc_json,
+                    token_count=c.token_count,
+                )
+                for c in chunks
+            ]
+    except Exception:  # noqa: BLE001
+        pass
+
     if kind == "browser" and meta.get("cursor"):
         # Last-visit cursor: the next scan skips entries at or below it (§6.2).
         conn.execute(

@@ -182,6 +182,10 @@ class LlamaServerSupervisor:
             f"llama-server did not become healthy within {LLAMA_STARTUP_TIMEOUT_S:.0f}s"
         )
 
+    def set_idle_timeout(self, minutes: int) -> None:
+        """Update the idle-unload window (PLAN.md §6.7, §11.3)."""
+        self.idle_timeout_s = max(1, minutes) * 60
+
     def touch(self) -> None:
         """Mark the server as in-use, deferring the §6.7 idle unload."""
         self.state.last_used_at = time.time()

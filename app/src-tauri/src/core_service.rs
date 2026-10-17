@@ -129,7 +129,7 @@ pub fn resolve_python(repo_root: &PathBuf) -> Result<Command, String> {
 }
 
 /// Minimal `which`, avoiding a dependency for one call.
-fn which(program: &str) -> Option<PathBuf> {
+pub(crate) fn which(program: &str) -> Option<PathBuf> {
     let path = std::env::var_os("PATH")?;
     for dir in std::env::split_paths(&path) {
         let candidate = dir.join(program);

@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS sources (
   config_json   TEXT NOT NULL,          -- paths, account, include/exclude globs
   enabled       INTEGER NOT NULL DEFAULT 1,
   last_sync_at  TEXT,
-  cursor        TEXT                    -- connector-specific sync cursor (e.g. IMAP UIDVALIDITY:UID)
+  cursor        TEXT                    -- connector sync cursor (IMAP UIDVALIDITY:UID)
 );
 """
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS chunks (
   ord           INTEGER NOT NULL,       -- order within the document
   text          TEXT NOT NULL,
   chunk_hash    TEXT NOT NULL,          -- lets unchanged chunks keep their embeddings
-  loc_json      TEXT NOT NULL,          -- {"page":3} | {"line_start":40,"line_end":72,"symbol":"parseFoo"} | {"msg_part":"body"}
+  loc_json      TEXT NOT NULL,          -- {"page":3} | {"line_start":40,"symbol":"foo"}
   token_count   INTEGER NOT NULL
 );
 """

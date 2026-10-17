@@ -23,6 +23,13 @@ export type AnswerLLMInfo = {
   reasoning_enabled: boolean;
 };
 
+export type AnswerLLMOption = {
+  key: string;
+  label: string;
+  size_gb: number;
+  present: boolean;
+};
+
 export type Status = {
   app: string;
   version: string;
@@ -45,10 +52,13 @@ export type Status = {
   models: {
     embedding: EmbeddingInfo;
     answer_llm: AnswerLLMInfo;
+    answer_llm_options?: AnswerLLMOption[];
     reranker: { key: string; enabled: boolean };
   };
   llm_server: { running: boolean; pid?: number | null; model?: string | null; restarts?: number };
   queue: number;
+  queue_paused_reason?: string | null;
+  worker_state?: string;
   events_subscribers: number;
 };
 
@@ -137,10 +147,21 @@ export type SearchResponse = {
   warnings?: string[];
 };
 
-export function postSearch(query: string, limit = 20): Promise<SearchResponse> {
+export type QueryFilters = {
+  source_kind?: string;
+  author?: string;
+  date_from?: string;
+  date_to?: string;
+};
+
+export function postSearch(
+  query: string,
+  opts: { limit?: number; filters?: QueryFilters } = {},
+): Promise<SearchResponse> {
+  const { limit = 20, filters } = opts;
   return request<SearchResponse>("/search", {
     method: "POST",
-    body: JSON.stringify({ query, limit }),
+    body: JSON.stringify({ query, limit, filters }),
   });
 }
 
@@ -187,7 +208,11 @@ export type AnswerCallbacks = {
  * (or `error`). Returns an abort function; the caller holds it for the
  * lifetime of the stream (§6.7: the indexer stays paused until it closes).
  */
-export function postAnswer(query: string, cb: AnswerCallbacks): () => void {
+export function postAnswer(
+  query: string,
+  cb: AnswerCallbacks,
+  filters?: QueryFilters,
+): () => void {
   const token = getToken();
   const headers = new Headers();
   if (token) headers.set("X-Local-Token", token);
@@ -200,7 +225,7 @@ export function postAnswer(query: string, cb: AnswerCallbacks): () => void {
       resp = await fetch(`${API_BASE}/answer`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, filters }),
         signal: ctrl.signal,
       });
     } catch (e) {
@@ -297,4 +322,158 @@ export function subscribeEvents(
   source.onerror = () => onError?.();
 
   return () => source.close();
+}
+
+// --------------------------------------------------------------------------------
+// Sources + documents (PLAN.md §10, Phase 6 settings; TODO 6.4)
+// --------------------------------------------------------------------------------
+
+/** Source kinds the API accepts (PLAN.md §6.2). */
+export const SOURCE_KINDS = [
+  "files",
+  "pdf",
+  "email",
+  "email_imap",
+  "browser",
+  "chat",
+  "code",
+] as const;
+export type SourceKind = (typeof SOURCE_KINDS)[number];
+
+export type Source = {
+  id: number;
+  kind: string;
+  name: string;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  last_sync_at: string | null;
+  documents: number;
+  errors: number;
+};
+
+export async function listSources(): Promise<Source[]> {
+  const body = await request<{ sources: Source[] }>("/sources");
+  return body.sources;
+}
+
+export function createSource(input: {
+  kind: string;
+  name: string;
+  config?: Record<string, unknown>;
+  enabled?: boolean;
+}): Promise<{ source: Source; job_id: number | null }> {
+  return request("/sources", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function patchSource(
+  id: number,
+  patch: { name?: string; config?: Record<string, unknown>; enabled?: boolean },
+): Promise<{ source: Source }> {
+  return request(`/sources/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
+}
+
+export function deleteSource(
+  id: number,
+): Promise<{ forgotten: number; documents: number; chunks: number }> {
+  return request(`/sources/${id}`, { method: "DELETE" });
+}
+
+export function reindexSource(id: number): Promise<{ job_id: number }> {
+  return request(`/sources/${id}/reindex`, { method: "POST" });
+}
+
+export type DocumentMeta = {
+  id: number;
+  source_id: number;
+  uri: string;
+  title: string | null;
+  author: string | null;
+  mime: string | null;
+  modified_at: string | null;
+  status: string;
+  error: string | null;
+  chunks: number;
+};
+
+export function getDocument(id: number): Promise<DocumentMeta> {
+  return request(`/documents/${id}`);
+}
+
+/** Switch the answer LLM between the pinned 4B and 8B (PLAN.md §4.1, §11.3). */
+export function setAnswerModel(
+  key: string,
+): Promise<{ key: string; changed: boolean; running: boolean }> {
+  return request("/models/answer", { method: "POST", body: JSON.stringify({ key }) });
+}
+
+/** Toggle the battery-pause signal (PLAN.md §6.6, §11.3). */
+export function setBatteryLow(
+  low: boolean,
+): Promise<{ battery_low: boolean; paused_reason: string | null }> {
+  return request("/policy/battery", { method: "POST", body: JSON.stringify({ low }) });
+}
+
+export function setIdleTimeout(
+  minutes: number,
+): Promise<{ minutes: number }> {
+  return request("/policy/idle-timeout", { method: "POST", body: JSON.stringify({ minutes }) });
+}
+
+/**
+ * Open a result's original source.
+ *
+ * Under Tauri the Rust `open_source` command handles the deep link (file at a
+ * line, PDF at a page, `message://`, `https://`). In the browser dev host the
+ * plain URI is opened in a new tab so the flow is testable without the shell
+ * (PLAN.md §4 UI host row, §6.3).
+ */
+export async function openSource(
+  uri: string,
+  loc?: Record<string, unknown>,
+): Promise<void> {
+  const call = tauriInvoke<void>("open_source", { uri, loc: loc ?? {} });
+  if (call) {
+    await call;
+    return;
+  }
+  window.open(uri, "_blank", "noopener");
+}
+
+// --------------------------------------------------------------------------------
+// Tauri-only host commands (PLAN.md §11.2, §11.3)
+//
+// The bundle has no `@tauri-apps/api` dependency on purpose (§4: one build, two hosts),
+// so host commands go through `window.__TAURI_INTERNALS__.invoke`, which Tauri injects
+// into the webview. In a browser these helpers report that the feature is unavailable.
+// --------------------------------------------------------------------------------
+
+type TauriInternals = {
+  invoke?: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>;
+};
+
+function tauriInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> | null {
+  const internals = (window as unknown as { __TAURI_INTERNALS__?: TauriInternals })
+    .__TAURI_INTERNALS__;
+  if (!internals?.invoke) return null;
+  return internals.invoke(cmd, args) as Promise<T>;
+}
+
+/** True when the page is running inside the desktop shell rather than a browser. */
+export function isDesktop(): boolean {
+  return tauriInvoke("__noop__") !== null;
+}
+
+export function getHotkey(): Promise<string> | null {
+  return tauriInvoke<string>("get_hotkey");
+}
+
+export async function setHotkey(spec: string): Promise<string> {
+  const call = tauriInvoke<string>("set_hotkey", { spec });
+  if (!call) throw new ApiError("the hotkey can only be changed in the desktop app", 0);
+  return call;
+}
+
+/** Show/hide the desktop window, matching the global hotkey's toggle (PLAN.md §11.2). */
+export function toggleWindow(): void {
+  void tauriInvoke<void>("reveal_window");
 }

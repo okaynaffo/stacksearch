@@ -3303,6 +3303,7 @@ dependencies = [
  "tauri-plugin-global-shortcut",
  "tauri-plugin-opener",
  "ureq",
+ "window-vibrancy",
 ]
 
 [[package]]

@@ -151,7 +151,19 @@ def _mount_ui(app: FastAPI) -> None:
         The fallback is required for any future client-side routing: a deep link like
         ``/settings`` must return the app shell, not a 404.
         """
-        if full_path.startswith(("status", "events", "health", "search", "answer", "sources")):
+        if full_path.startswith(
+            (
+                "status",
+                "events",
+                "health",
+                "search",
+                "answer",
+                "sources",
+                "documents",
+                "policy",
+                "models",
+            )
+        ):
             return JSONResponse({"error": "not found"}, status_code=404)
 
         candidate = (UI_DIST / full_path).resolve()
