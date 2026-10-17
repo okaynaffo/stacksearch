@@ -1,0 +1,16 @@
+# Notes on flight itinerary
+
+
+The flight departs from JFK at 8:40 AM with a layover in Chicago.
+
+Reference key ORDER-ID-10482 for exact lookup.
+
+whiskey papa yankee zulu uniform cloud yankee papa gentle xray harvest india river whiskey india field mike tango victor oscar rapid harvest quebec harvest echo yankee field charlie delta mike alpha rapid victor ledger sierra field november foxtrot zulu juliet kilo yankee harvest golf sierra stone echo november bravo kilo gentle delta xray tango golf xray xray xray victor harvest xray field rapid ledger victor bravo timber victor papa quebec
+
+mike hotel india papa whiskey alpha gentle uniform papa harvest bravo november timber sierra harvest charlie timber quebec cloud quebec sierra golf india gentle papa echo india sierra quebec india harvest harvest quietly echo foxtrot charlie golf mike oscar rapid india oscar rapid delta lima alpha zulu stone xray charlie whiskey delta echo gentle bravo papa field tango gentle ledger november river victor tango romeo rapid delta timber cloud field yankee echo charlie golf gentle uniform gentle romeo rapid golf delta quietly mountain field harvest mountain stone foxtrot gentle quebec ledger rapid whiskey papa delta ledger mountain golf
+
+echo gentle november delta quebec field yankee golf tango gentle river quebec oscar romeo tango harvest golf victor xray quebec golf alpha uniform sierra yankee lima echo ledger stone alpha oscar rapid echo harvest golf timber yankee oscar field harvest uniform quebec quietly zulu yankee gentle quietly gentle lima gentle romeo quietly romeo ledger juliet lima lima juliet kilo stone november stone river
+
+xray gentle timber delta foxtrot romeo mountain mountain romeo hotel mountain india tango charlie tango tango harvest xray gentle november victor mike kilo quebec cloud golf zulu whiskey rapid charlie field tango tango golf india india mike india india harvest uniform river golf echo gentle harvest gentle echo juliet stone victor charlie papa zulu lima oscar bravo ledger river bravo november november kilo lima timber yankee november river ledger juliet sierra tango rapid whiskey lima foxtrot bravo oscar rapid stone xray lima rapid mountain delta papa cloud mike ledger oscar whiskey uniform oscar charlie rapid whiskey harvest yankee golf quebec xray field mountain papa stone gentle uniform stone india papa golf india papa november alpha stone romeo
+
+The document about flight itinerary concludes with key ORDER-ID-10482.

@@ -1,0 +1,20 @@
+# Notes on garden plan
+
+
+Plant tomatoes and basil in the backyard beds this spring.
+
+Reference key ORDER-ID-10029 for exact lookup.
+
+mike uniform delta uniform mike echo whiskey yankee quietly uniform stone stone papa tango kilo zulu victor quietly harvest quietly hotel victor rapid echo tango gentle lima river romeo timber zulu rapid mountain river echo victor lima quebec ledger gentle ledger ledger bravo oscar bravo zulu quietly tango cloud harvest field alpha tango zulu stone cloud ledger delta charlie juliet juliet golf romeo timber yankee quietly sierra ledger kilo ledger foxtrot alpha mountain golf oscar alpha sierra alpha xray gentle whiskey golf golf stone foxtrot quebec cloud whiskey echo ledger yankee golf rapid romeo echo november whiskey oscar sierra mountain zulu golf charlie india hotel november river uniform quebec charlie timber
+
+whiskey field river zulu xray whiskey papa ledger victor kilo quietly harvest xray timber xray lima mountain cloud ledger romeo xray harvest kilo stone yankee victor mike field foxtrot oscar oscar stone zulu india india foxtrot charlie tango mountain oscar timber uniform xray harvest hotel delta yankee victor alpha river mountain harvest tango charlie xray november whiskey quietly mountain india bravo rapid zulu quebec mountain whiskey sierra zulu river alpha hotel india alpha ledger rapid quietly ledger sierra bravo golf alpha rapid
+
+delta gentle uniform rapid delta stone timber oscar tango papa mountain foxtrot sierra golf mountain sierra oscar november bravo romeo romeo rapid kilo bravo delta quietly timber mountain golf foxtrot cloud echo whiskey uniform gentle rapid lima foxtrot quietly bravo alpha lima zulu river quietly india harvest quietly cloud mountain victor juliet bravo lima kilo charlie timber sierra hotel harvest charlie victor lima cloud yankee kilo golf oscar river ledger hotel quietly golf juliet xray victor oscar juliet quebec hotel ledger papa mike ledger hotel mike echo india oscar delta hotel foxtrot india romeo field mountain delta yankee harvest papa sierra stone delta quietly harvest hotel quietly whiskey yankee charlie india tango cloud mountain timber juliet gentle
+
+gentle yankee sierra quebec mountain november november sierra river oscar tango romeo harvest river whiskey rapid papa uniform xray sierra kilo ledger bravo ledger timber field timber papa quebec cloud zulu papa echo zulu river whiskey uniform lima cloud quietly hotel mountain romeo oscar juliet harvest river timber ledger india tango ledger golf tango timber cloud charlie victor india whiskey river victor field yankee stone stone yankee mike juliet uniform xray
+
+uniform alpha quietly quietly timber rapid mike bravo echo field india stone cloud charlie ledger harvest mountain uniform mike river river victor timber mountain xray november quietly timber bravo xray harvest whiskey cloud gentle oscar river quietly stone field timber golf stone papa oscar quebec sierra romeo timber charlie bravo papa timber papa tango tango field lima harvest lima river echo lima oscar whiskey zulu foxtrot sierra xray lima juliet mountain oscar tango papa papa india alpha field field kilo harvest rapid november oscar november yankee golf field
+
+november uniform mountain golf oscar timber whiskey gentle mike cloud papa lima gentle ledger juliet sierra papa bravo bravo mountain november river zulu quebec zulu rapid rapid november juliet bravo golf uniform xray sierra mountain xray zulu cloud oscar india echo river romeo river oscar mike delta oscar india zulu cloud timber xray oscar bravo oscar cloud ledger river delta india kilo lima kilo cloud mountain quietly delta november india uniform quietly xray bravo stone charlie xray romeo river kilo hotel river mountain juliet bravo juliet whiskey oscar papa kilo field quietly india bravo lima field mountain river mountain victor golf kilo quebec
+
+The document about garden plan concludes with key ORDER-ID-10029.

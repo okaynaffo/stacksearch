@@ -1,0 +1,42 @@
+[package]
+name = "stacksearch-app"
+version = "0.1.0"
+description = "Desktop shell for the private local-first personal search engine (PLAN.md §11)"
+authors = ["StackSearch"]
+edition = "2024"
+rust-version = "1.90"
+
+[lib]
+name = "stacksearch_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.1", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.1", features = [] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# PLAN.md §13.1: the Rust side spawns and supervises the Python core service, performs
+# the §9 token handshake, and owns the global hotkey. This is the whole reason Tauri is
+# in Phase 0 rather than Phase 6.
+tauri-plugin-global-shortcut = "2.4"
+
+# PLAN.md §6.3: `security` / `opener` is what will later open file:// deep links,
+# message:// URIs and browser history URLs (TODO 6.3). Registered now so the capability
+# surface is decided while it is still cheap to change.
+tauri-plugin-opener = "2.7"
+
+# ureq rather than reqwest: the only network call is a loopback health poll and one
+# /status handshake. A blocking client with no async runtime keeps the binary and the
+# dependency tree small, which matters for a fanless machine already sharing 16 GB
+# with the LLM (PLAN.md §2.1).
+ureq = "3.4"
+
+[profile.release]
+# §2.1 cares about resident memory, and debug symbols are the cheapest thing to drop.
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"

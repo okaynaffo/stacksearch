@@ -1,0 +1,18 @@
+# Notes on meeting notes
+
+
+The team decided to launch on Friday, and Priya owns the rollout checklist.
+
+Reference key ORDER-ID-10434 for exact lookup.
+
+golf bravo mike charlie victor mountain charlie victor golf foxtrot zulu juliet oscar zulu ledger oscar november bravo foxtrot kilo gentle timber ledger hotel golf juliet yankee stone juliet xray timber victor cloud sierra harvest river quebec hotel field romeo quebec quebec tango oscar xray quietly yankee sierra golf field harvest quietly xray yankee cloud delta juliet charlie mike tango quebec zulu whiskey stone charlie uniform quebec bravo whiskey quebec golf ledger kilo victor golf sierra mike whiskey ledger hotel whiskey victor oscar uniform mike charlie delta hotel foxtrot quietly
+
+tango echo zulu november november sierra mountain ledger yankee sierra stone alpha mike timber field golf tango victor lima lima ledger sierra romeo sierra foxtrot echo gentle bravo victor delta mike kilo river sierra juliet uniform echo yankee oscar mountain harvest river river papa rapid alpha whiskey mountain kilo gentle victor papa hotel tango india oscar mountain zulu river mike india river india mountain zulu gentle india charlie hotel mountain tango alpha mike whiskey cloud mike romeo harvest uniform river bravo kilo alpha quebec golf echo xray harvest yankee mike foxtrot sierra sierra uniform tango
+
+kilo hotel xray victor yankee india lima charlie ledger ledger echo gentle juliet whiskey india bravo sierra rapid romeo mountain field romeo charlie rapid cloud river lima xray alpha india cloud papa zulu cloud lima sierra tango whiskey quebec juliet yankee harvest quietly stone quietly romeo golf cloud juliet river papa whiskey harvest timber ledger victor papa harvest ledger charlie lima sierra rapid charlie mike alpha field alpha rapid foxtrot ledger charlie yankee romeo bravo field ledger juliet mountain romeo hotel field stone bravo victor field victor hotel yankee alpha cloud river echo xray kilo sierra foxtrot cloud rapid zulu alpha echo alpha tango delta delta river timber sierra mountain mike oscar delta india gentle xray rapid river mountain
+
+cloud india november uniform mike kilo juliet mike stone india kilo gentle field mountain alpha victor whiskey alpha golf papa echo november juliet whiskey alpha field india cloud harvest november mike kilo hotel victor stone india quebec whiskey river rapid uniform yankee delta delta gentle mountain charlie juliet tango rapid romeo delta sierra stone mike quietly cloud hotel india mike romeo hotel yankee quebec ledger ledger ledger zulu quietly bravo kilo river november oscar papa harvest november sierra quietly
+
+river whiskey mountain oscar uniform alpha victor timber golf field gentle gentle papa xray sierra sierra whiskey zulu whiskey romeo hotel echo hotel xray bravo zulu quietly juliet papa delta lima quebec victor mike zulu victor harvest lima harvest quietly charlie zulu lima mike quietly cloud lima india echo yankee cloud gentle mike delta romeo papa echo juliet gentle kilo gentle quebec delta lima harvest oscar river mike whiskey gentle cloud rapid delta delta foxtrot whiskey juliet alpha india gentle yankee field timber kilo romeo oscar xray zulu cloud romeo golf november juliet oscar ledger victor harvest oscar papa echo bravo river quietly mike india timber mountain juliet zulu cloud juliet golf cloud oscar romeo papa lima quebec
+
+The document about meeting notes concludes with key ORDER-ID-10434.

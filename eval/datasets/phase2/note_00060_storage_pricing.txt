@@ -1,0 +1,16 @@
+# Notes on storage pricing
+
+
+Storage pricing is $145 per month for a 10x10 unit.
+
+Reference key ORDER-ID-10060 for exact lookup.
+
+charlie yankee alpha zulu lima mike charlie quietly romeo charlie november papa cloud stone foxtrot papa river sierra yankee november foxtrot cloud mike quebec cloud cloud tango charlie yankee november gentle hotel juliet yankee cloud hotel bravo mountain romeo bravo timber bravo timber victor xray romeo field papa quietly field november india hotel bravo romeo juliet quebec uniform india quebec ledger quebec alpha kilo tango quebec hotel juliet ledger november charlie foxtrot papa mike gentle bravo golf kilo stone charlie golf oscar quietly tango yankee mike uniform cloud echo romeo
+
+uniform zulu foxtrot gentle sierra ledger rapid golf uniform quietly harvest mountain delta delta alpha juliet cloud field harvest xray mountain papa rapid gentle romeo hotel mike zulu stone bravo xray yankee bravo timber ledger kilo victor echo stone quebec cloud alpha tango yankee yankee river cloud field victor india harvest rapid bravo river xray tango romeo quietly field papa mike kilo whiskey xray india victor ledger alpha mike mountain quietly zulu delta november juliet whiskey xray alpha quebec oscar xray hotel sierra echo echo alpha yankee alpha delta cloud timber kilo tango yankee romeo hotel golf victor charlie kilo delta bravo cloud tango harvest juliet harvest lima quietly romeo golf field
+
+bravo india rapid quietly whiskey mike lima whiskey gentle hotel zulu river whiskey golf quebec lima yankee golf mountain lima uniform juliet mike victor gentle echo echo timber gentle harvest field gentle whiskey field field oscar delta rapid yankee harvest river india tango alpha sierra papa echo charlie foxtrot whiskey river field november charlie cloud lima lima victor ledger november golf foxtrot oscar ledger oscar mike cloud bravo whiskey field bravo bravo golf xray foxtrot november sierra rapid quietly tango whiskey river gentle zulu bravo foxtrot timber timber ledger delta kilo golf papa gentle oscar india kilo hotel bravo papa delta papa hotel stone field quietly stone india rapid quietly quietly juliet ledger rapid lima ledger
+
+alpha river cloud oscar river charlie whiskey river xray uniform cloud hotel sierra india bravo romeo charlie rapid delta delta sierra ledger zulu bravo zulu oscar romeo mike bravo harvest hotel gentle mike lima kilo mountain bravo quietly timber timber ledger golf ledger mike echo india uniform rapid zulu hotel quebec whiskey hotel alpha cloud charlie rapid xray juliet uniform papa golf mountain
+
+The document about storage pricing concludes with key ORDER-ID-10060.

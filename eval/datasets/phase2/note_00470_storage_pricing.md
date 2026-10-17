@@ -1,0 +1,18 @@
+# Notes on storage pricing
+
+
+Storage pricing is $145 per month for a 10x10 unit.
+
+Reference key ORDER-ID-10470 for exact lookup.
+
+hotel juliet field golf river zulu uniform quietly echo mike river river tango uniform river mountain mike stone zulu river rapid harvest harvest xray kilo sierra echo foxtrot zulu victor timber uniform yankee romeo stone mountain mountain stone mountain rapid mike harvest whiskey victor victor gentle bravo golf timber hotel quietly quebec quebec yankee rapid whiskey bravo golf foxtrot delta stone hotel uniform cloud uniform foxtrot mountain quietly whiskey gentle golf gentle romeo xray harvest river golf papa stone harvest india uniform lima xray mike zulu oscar harvest tango hotel whiskey kilo yankee gentle whiskey quietly charlie echo river mike rapid rapid oscar xray stone golf xray charlie yankee
+
+zulu romeo juliet papa harvest victor field golf india harvest echo quietly zulu india kilo quietly echo tango alpha charlie echo foxtrot november quietly uniform november timber quietly timber quietly gentle delta oscar papa whiskey ledger mountain delta kilo india river uniform kilo sierra stone zulu charlie gentle golf whiskey mike alpha xray juliet bravo sierra yankee timber charlie juliet papa november papa sierra tango echo ledger romeo india field xray india sierra quebec victor india
+
+quebec golf sierra uniform alpha ledger quietly zulu gentle cloud victor oscar echo tango stone field stone uniform kilo zulu mountain romeo zulu delta stone juliet hotel quietly bravo juliet juliet harvest foxtrot echo india rapid rapid india quebec kilo juliet timber charlie hotel lima ledger field gentle rapid delta kilo golf field tango ledger hotel charlie xray rapid uniform foxtrot kilo charlie river hotel timber tango xray cloud tango india bravo xray bravo xray ledger xray yankee harvest bravo hotel bravo mike river alpha oscar stone charlie quietly golf victor field november mike yankee foxtrot stone echo hotel alpha ledger delta juliet xray ledger papa tango india harvest lima rapid bravo whiskey rapid papa echo cloud yankee india
+
+alpha juliet kilo whiskey yankee india uniform november sierra cloud lima juliet timber papa mike echo india quebec kilo zulu foxtrot mike india gentle bravo papa alpha juliet foxtrot cloud mountain golf echo golf oscar stone mike field quebec delta november echo cloud echo golf mike rapid zulu echo foxtrot india whiskey oscar alpha oscar cloud cloud golf bravo sierra hotel golf xray foxtrot bravo ledger ledger field yankee papa kilo ledger charlie tango bravo oscar victor alpha romeo bravo zulu whiskey charlie papa quebec xray cloud gentle uniform ledger papa xray juliet whiskey delta juliet charlie juliet hotel india november river lima victor victor stone charlie charlie river mountain foxtrot cloud cloud alpha
+
+golf bravo november victor rapid yankee india quietly river timber quebec xray echo echo field india quietly mike harvest golf quebec charlie alpha whiskey papa alpha lima november tango alpha harvest papa bravo bravo golf quebec sierra xray charlie oscar juliet xray alpha gentle foxtrot charlie foxtrot victor mike xray golf oscar romeo romeo whiskey golf victor golf cloud xray whiskey kilo cloud oscar zulu juliet timber bravo india river foxtrot stone quebec charlie timber sierra india delta alpha november quietly gentle alpha gentle alpha november ledger river river zulu juliet kilo field mountain quebec lima india quebec cloud rapid cloud golf oscar juliet zulu oscar alpha echo bravo whiskey river juliet
+
+The document about storage pricing concludes with key ORDER-ID-10470.

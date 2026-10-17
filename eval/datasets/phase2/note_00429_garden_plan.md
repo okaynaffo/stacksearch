@@ -1,0 +1,20 @@
+# Notes on garden plan
+
+
+Plant tomatoes and basil in the backyard beds this spring.
+
+Reference key ORDER-ID-10429 for exact lookup.
+
+victor whiskey rapid gentle yankee foxtrot bravo field india rapid mike mountain quebec golf delta uniform echo golf mike november harvest harvest harvest lima gentle ledger xray mike juliet field romeo rapid victor juliet foxtrot foxtrot delta mike golf india sierra xray cloud echo harvest quebec alpha victor stone river xray juliet india alpha echo papa november field cloud uniform lima timber india river yankee cloud xray ledger quebec rapid kilo alpha hotel juliet tango quebec kilo rapid juliet zulu hotel zulu mike delta yankee
+
+whiskey cloud india mike foxtrot whiskey yankee gentle hotel bravo field harvest quebec whiskey sierra mike harvest river papa india zulu uniform victor zulu whiskey ledger lima whiskey quebec charlie victor ledger kilo sierra quietly charlie lima uniform lima juliet ledger hotel november whiskey india lima yankee harvest field oscar yankee stone papa ledger papa sierra stone sierra tango quebec yankee hotel rapid sierra oscar lima sierra golf whiskey tango whiskey yankee november sierra whiskey harvest golf charlie foxtrot sierra juliet delta bravo gentle alpha gentle lima papa river alpha papa rapid
+
+charlie victor foxtrot sierra charlie river mike alpha yankee echo echo river harvest echo xray stone zulu rapid foxtrot kilo quebec yankee alpha gentle field lima quebec ledger mountain quietly charlie stone harvest romeo quietly yankee hotel india quebec echo delta bravo cloud charlie sierra victor quietly alpha river timber mountain xray november rapid kilo sierra xray alpha timber delta mike yankee zulu tango india lima foxtrot papa lima charlie yankee alpha papa foxtrot mountain papa xray hotel mountain rapid golf sierra yankee whiskey yankee stone mike xray mountain papa stone golf cloud echo quietly november gentle lima stone whiskey cloud cloud juliet bravo mountain xray
+
+whiskey yankee bravo foxtrot ledger mike mountain lima charlie xray golf hotel zulu quebec juliet foxtrot zulu mountain delta charlie uniform timber whiskey charlie yankee lima quebec stone gentle harvest ledger victor quietly stone timber kilo india stone echo bravo charlie quietly mountain golf zulu gentle uniform india victor harvest charlie romeo lima alpha bravo rapid quebec kilo ledger quebec foxtrot romeo oscar uniform uniform bravo india cloud delta romeo papa november hotel quebec river papa gentle juliet quietly stone papa rapid cloud quebec charlie golf echo stone uniform alpha quietly harvest timber november foxtrot kilo victor papa gentle gentle echo timber river victor romeo mike kilo mountain echo delta cloud whiskey foxtrot mike delta
+
+kilo sierra rapid field hotel harvest stone river quebec xray whiskey bravo oscar victor charlie kilo bravo yankee whiskey papa oscar stone romeo uniform rapid charlie field india tango echo romeo gentle juliet zulu stone river hotel quietly quietly gentle ledger golf lima timber stone lima charlie alpha uniform rapid alpha oscar foxtrot mike kilo rapid xray golf kilo bravo echo uniform hotel river whiskey stone cloud whiskey stone juliet oscar uniform
+
+quietly field river alpha echo alpha india sierra golf xray bravo whiskey papa river cloud golf ledger delta rapid quebec romeo papa tango victor echo ledger rapid harvest mountain lima bravo foxtrot charlie yankee november india mountain romeo quebec zulu echo mike timber mountain zulu whiskey ledger alpha bravo sierra zulu zulu rapid bravo charlie echo river juliet alpha yankee yankee juliet uniform bravo delta lima harvest quebec juliet november november charlie harvest field stone echo oscar oscar oscar charlie tango foxtrot bravo gentle romeo mike romeo foxtrot bravo uniform rapid golf echo victor tango india cloud river india romeo kilo hotel uniform november romeo mountain
+
+The document about garden plan concludes with key ORDER-ID-10429.

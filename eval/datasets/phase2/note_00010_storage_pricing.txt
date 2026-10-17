@@ -1,0 +1,14 @@
+# Notes on storage pricing
+
+
+Storage pricing is $145 per month for a 10x10 unit.
+
+Reference key ORDER-ID-10010 for exact lookup.
+
+field charlie charlie cloud quietly hotel rapid oscar sierra victor victor timber stone oscar november field november sierra stone cloud bravo oscar lima bravo harvest romeo mountain xray echo romeo foxtrot hotel zulu yankee harvest river oscar delta xray cloud victor quebec echo rapid stone india mountain quietly quietly mike victor mike hotel zulu kilo sierra mike echo timber bravo ledger mike mike quebec mike field sierra bravo bravo echo whiskey november river alpha cloud quebec field whiskey kilo stone uniform whiskey tango golf charlie lima whiskey river
+
+bravo quietly golf victor golf juliet xray rapid gentle foxtrot victor uniform rapid india golf timber stone quebec harvest yankee november whiskey quebec bravo mike romeo timber mountain yankee kilo mountain india india alpha hotel november cloud yankee bravo alpha foxtrot quietly charlie november stone cloud echo uniform victor field quietly gentle november alpha papa november whiskey yankee golf golf india mike ledger quietly stone ledger echo stone delta rapid kilo zulu papa rapid rapid juliet hotel gentle yankee echo papa oscar alpha zulu stone oscar charlie papa golf mike alpha charlie quietly delta zulu papa oscar charlie field stone river quebec charlie juliet quietly bravo rapid golf golf lima juliet timber kilo harvest uniform golf harvest
+
+yankee alpha echo bravo field foxtrot harvest field cloud echo delta cloud sierra quietly zulu alpha field november bravo lima harvest quietly november hotel november mountain hotel foxtrot cloud timber whiskey golf foxtrot papa golf foxtrot xray romeo tango tango sierra juliet gentle stone victor mike alpha foxtrot echo charlie hotel november timber yankee quietly river stone november foxtrot bravo delta bravo india mountain delta lima sierra ledger quebec india quebec tango whiskey bravo uniform yankee golf kilo ledger kilo rapid uniform romeo papa alpha river cloud bravo victor oscar cloud whiskey victor alpha papa victor foxtrot cloud kilo golf charlie uniform mountain victor xray echo cloud hotel quietly kilo
+
+The document about storage pricing concludes with key ORDER-ID-10010.

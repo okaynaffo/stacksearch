@@ -1,0 +1,16 @@
+# Notes on garden plan
+
+
+Plant tomatoes and basil in the backyard beds this spring.
+
+Reference key ORDER-ID-10379 for exact lookup.
+
+papa stone juliet quebec juliet rapid victor lima juliet ledger charlie oscar yankee cloud xray kilo xray oscar oscar delta mike zulu lima hotel gentle yankee river november ledger india mike field alpha zulu quietly oscar stone timber cloud ledger juliet delta tango uniform river alpha echo lima uniform cloud papa sierra uniform romeo mountain cloud lima timber india kilo ledger field foxtrot mountain charlie quietly charlie sierra mike whiskey kilo quietly zulu quebec river charlie oscar hotel mike quebec ledger whiskey harvest zulu india stone delta papa field gentle harvest yankee india charlie echo november quietly field bravo yankee victor victor juliet delta golf oscar ledger echo mike delta victor river cloud yankee quietly zulu
+
+uniform echo yankee mike xray rapid kilo alpha india whiskey mountain november xray kilo bravo papa harvest hotel zulu uniform tango ledger gentle india lima oscar bravo river hotel victor foxtrot foxtrot juliet harvest delta oscar india quebec bravo foxtrot cloud kilo foxtrot xray xray stone mike field quietly hotel harvest ledger india yankee echo victor field yankee uniform mike gentle stone river india november quietly zulu sierra victor charlie hotel romeo rapid field kilo foxtrot zulu ledger foxtrot tango whiskey romeo field uniform papa xray bravo quietly cloud papa tango xray juliet uniform victor zulu cloud uniform yankee charlie xray kilo yankee juliet delta romeo romeo victor oscar hotel harvest november papa golf romeo
+
+mountain zulu lima whiskey mountain papa gentle mike foxtrot papa mike mountain kilo river whiskey kilo lima charlie romeo field romeo zulu harvest harvest zulu juliet india tango hotel river echo uniform hotel ledger gentle papa november river foxtrot quebec mountain rapid river hotel charlie quietly cloud stone timber quietly oscar mountain golf kilo tango india november november mountain whiskey zulu mountain alpha charlie kilo november juliet kilo india romeo uniform whiskey mike mike zulu lima kilo timber bravo tango victor delta victor mountain gentle yankee alpha quietly xray stone romeo river river delta echo gentle golf golf delta kilo romeo foxtrot foxtrot mike golf india
+
+lima quebec whiskey quietly india juliet quietly romeo charlie alpha mountain quietly hotel hotel oscar november foxtrot golf hotel golf rapid harvest oscar charlie tango gentle kilo november xray juliet mountain mike foxtrot uniform uniform mountain whiskey zulu whiskey papa whiskey foxtrot alpha romeo november mike mike papa zulu xray harvest stone hotel tango quietly xray juliet yankee alpha mountain india hotel alpha sierra mountain rapid quietly yankee zulu river papa quietly rapid field ledger echo quebec field rapid kilo romeo uniform victor alpha oscar juliet whiskey kilo lima kilo cloud xray juliet foxtrot kilo xray delta xray uniform
+
+The document about garden plan concludes with key ORDER-ID-10379.

@@ -1,0 +1,18 @@
+# Notes on book summary
+
+
+The novel's main argument is that harbor cities grow rich on repair docks, not trade.
+
+Reference key ORDER-ID-10065 for exact lookup.
+
+timber victor kilo quietly victor charlie xray bravo kilo ledger alpha quebec cloud victor stone india delta sierra bravo field rapid uniform oscar uniform lima india india mike stone zulu harvest kilo quebec golf oscar mountain juliet papa river victor kilo rapid november river river romeo ledger foxtrot echo mountain harvest gentle stone oscar november alpha bravo harvest quietly field timber echo november yankee xray uniform gentle kilo sierra mountain xray sierra golf foxtrot alpha cloud zulu river tango papa zulu echo foxtrot bravo kilo field romeo harvest foxtrot gentle papa quietly tango golf victor mountain field bravo kilo mike quebec bravo
+
+juliet lima bravo kilo yankee kilo ledger yankee delta timber alpha field tango juliet india rapid foxtrot quebec lima alpha timber whiskey november november echo sierra zulu gentle xray whiskey stone quietly tango alpha zulu alpha uniform uniform cloud victor stone timber victor bravo zulu juliet tango kilo stone whiskey tango xray xray oscar river papa papa november bravo papa ledger bravo quebec field alpha golf lima yankee charlie golf cloud golf bravo quietly foxtrot oscar charlie hotel yankee oscar ledger
+
+uniform tango ledger echo oscar papa mountain echo field november kilo rapid xray river romeo gentle cloud victor hotel delta echo november river field zulu bravo november field delta alpha river rapid sierra quietly foxtrot oscar cloud gentle stone foxtrot uniform foxtrot quebec cloud mountain alpha lima november charlie juliet echo mike stone juliet quietly delta delta echo sierra uniform stone quietly mike xray quietly timber india kilo lima november stone lima alpha victor papa mike golf bravo delta charlie xray river foxtrot rapid quietly tango whiskey november yankee gentle november gentle cloud romeo quebec mountain alpha delta yankee gentle oscar delta field delta alpha delta papa cloud stone river oscar papa hotel
+
+sierra mountain field kilo stone delta uniform river sierra harvest mountain victor river india kilo delta golf tango mountain india kilo lima stone hotel kilo harvest yankee romeo cloud whiskey yankee juliet mountain mike romeo victor november romeo harvest stone bravo timber tango juliet golf india oscar stone golf kilo gentle timber harvest charlie oscar romeo gentle papa bravo whiskey gentle tango gentle cloud xray yankee romeo xray gentle juliet ledger uniform timber tango juliet bravo charlie ledger kilo india oscar gentle charlie kilo romeo lima gentle uniform river lima xray golf oscar uniform papa quietly alpha lima foxtrot delta uniform sierra quebec harvest harvest bravo yankee delta gentle alpha uniform river
+
+harvest india echo timber foxtrot victor whiskey foxtrot india yankee echo bravo victor bravo uniform india zulu delta field quebec november yankee kilo rapid ledger delta gentle delta bravo romeo lima ledger delta foxtrot bravo echo oscar stone ledger delta field yankee rapid quietly hotel xray ledger xray stone xray alpha zulu romeo victor zulu foxtrot xray papa india november timber papa ledger harvest whiskey november rapid india xray xray whiskey field hotel yankee yankee november echo echo whiskey sierra stone timber charlie quebec charlie rapid rapid timber field
+
+The document about book summary concludes with key ORDER-ID-10065.

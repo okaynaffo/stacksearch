@@ -1,0 +1,18 @@
+# Notes on recipe lentils
+
+
+To cook red lentils for dinner: rinse 2 cups of red lentils, boil them with spices, then simmer for 35 minutes.
+
+Reference key ORDER-ID-10093 for exact lookup.
+
+field mountain rapid victor stone mike india golf whiskey cloud uniform stone kilo alpha delta uniform tango papa india cloud whiskey foxtrot papa lima mountain harvest lima bravo rapid uniform kilo charlie hotel india rapid foxtrot foxtrot quietly india zulu golf harvest field sierra mountain cloud kilo timber charlie uniform november echo yankee mike echo bravo gentle india november lima alpha field tango lima rapid hotel ledger lima stone bravo oscar juliet sierra india juliet sierra rapid alpha lima kilo quietly river sierra zulu charlie harvest oscar juliet romeo harvest november uniform november xray november timber victor alpha whiskey quebec kilo oscar kilo stone golf romeo timber sierra rapid delta romeo hotel foxtrot rapid whiskey
+
+cloud hotel zulu papa sierra cloud ledger papa river gentle whiskey papa tango lima echo alpha romeo alpha whiskey tango foxtrot xray quietly india mike papa mike river rapid mike kilo harvest zulu bravo papa lima yankee xray xray victor xray xray gentle cloud golf lima ledger rapid victor romeo uniform river harvest gentle sierra gentle ledger tango india november mike yankee whiskey echo victor xray yankee alpha tango stone timber india whiskey yankee yankee sierra river delta oscar oscar delta river quebec lima bravo harvest quebec river delta november delta golf golf foxtrot kilo field gentle bravo victor victor india cloud sierra echo papa bravo golf india foxtrot oscar quebec foxtrot juliet
+
+uniform bravo november papa juliet papa whiskey oscar yankee uniform golf rapid yankee sierra charlie bravo november stone tango ledger zulu tango foxtrot foxtrot india bravo hotel echo lima xray gentle tango whiskey bravo uniform mountain mike zulu oscar quietly papa papa stone echo victor charlie timber river papa juliet quietly uniform yankee lima juliet juliet river oscar uniform juliet lima foxtrot yankee victor tango bravo xray delta papa charlie xray harvest mountain papa kilo stone mike whiskey alpha harvest papa oscar kilo quietly river timber papa papa charlie harvest ledger
+
+ledger river papa oscar rapid oscar harvest zulu foxtrot timber papa sierra gentle mountain echo juliet juliet quebec victor whiskey november field echo stone stone yankee tango oscar bravo lima quietly kilo mike echo harvest cloud papa quebec foxtrot quebec whiskey yankee romeo yankee charlie delta quebec timber quebec hotel mike hotel field foxtrot romeo kilo foxtrot timber stone papa rapid timber ledger field river lima quietly harvest mountain harvest rapid india mike ledger cloud whiskey alpha hotel tango yankee victor hotel golf harvest papa ledger rapid victor oscar lima mike zulu charlie gentle cloud hotel rapid romeo
+
+romeo foxtrot harvest charlie rapid quietly mike november oscar alpha tango cloud gentle gentle alpha romeo charlie echo golf zulu echo charlie mountain field quietly quebec field bravo uniform papa mike gentle foxtrot november bravo uniform quietly romeo rapid xray xray juliet november yankee charlie yankee cloud river mountain charlie tango juliet mountain stone whiskey rapid sierra november november romeo alpha ledger oscar quietly india kilo harvest yankee timber lima zulu river mountain ledger golf quietly yankee river lima romeo bravo charlie tango xray mike stone zulu cloud gentle echo foxtrot xray golf foxtrot golf yankee mike victor foxtrot xray papa oscar bravo xray india mountain rapid
+
+The document about recipe lentils concludes with key ORDER-ID-10093.

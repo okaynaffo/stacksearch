@@ -1,0 +1,20 @@
+# Notes on recipe lentils
+
+
+To cook red lentils for dinner: rinse 2 cups of red lentils, boil them with spices, then simmer for 35 minutes.
+
+Reference key ORDER-ID-10413 for exact lookup.
+
+hotel charlie stone charlie november romeo mike golf charlie gentle delta alpha tango stone papa november golf rapid victor river quietly bravo timber charlie field golf quebec sierra lima hotel quebec tango stone papa hotel tango golf stone mike foxtrot field sierra yankee timber india bravo delta cloud alpha gentle hotel lima ledger alpha quebec lima alpha quietly stone victor victor kilo stone foxtrot victor quebec romeo stone sierra harvest cloud
+
+charlie stone mike tango kilo yankee echo sierra yankee yankee rapid echo quebec lima india bravo timber romeo hotel bravo foxtrot juliet lima gentle kilo whiskey kilo charlie alpha rapid lima quebec golf romeo stone victor gentle victor romeo rapid alpha kilo oscar hotel delta alpha november lima quietly charlie november india papa whiskey victor lima victor india mike quebec zulu delta uniform delta gentle delta rapid echo kilo uniform delta november river victor quebec quietly field uniform stone alpha lima gentle echo rapid yankee whiskey ledger bravo quebec lima hotel kilo
+
+timber zulu romeo quietly november field foxtrot oscar victor zulu stone ledger zulu zulu harvest alpha delta november echo quebec echo stone uniform whiskey field india zulu tango lima quietly echo zulu november quebec zulu juliet golf echo xray kilo delta stone rapid mike xray rapid sierra timber lima charlie rapid hotel mountain foxtrot oscar kilo zulu india cloud alpha zulu bravo delta field november xray quebec quietly sierra foxtrot quietly november field victor foxtrot november mountain cloud echo mike victor papa uniform romeo charlie quebec charlie zulu tango cloud november foxtrot lima river sierra whiskey timber victor november quietly cloud sierra lima cloud romeo stone ledger romeo hotel hotel quebec golf whiskey hotel victor cloud
+
+gentle cloud oscar charlie gentle november india harvest juliet victor quietly yankee uniform zulu quebec harvest kilo quebec gentle ledger india quietly yankee golf tango river golf cloud uniform xray papa xray zulu papa harvest hotel juliet charlie cloud zulu sierra victor charlie ledger sierra lima mike cloud field zulu golf field mike india gentle bravo field yankee foxtrot xray sierra lima romeo mike india oscar yankee zulu echo xray juliet ledger mike harvest mike sierra india echo yankee sierra juliet cloud mike field stone mike echo delta juliet juliet zulu romeo gentle whiskey november uniform romeo alpha india alpha papa river victor hotel romeo charlie whiskey bravo timber xray tango delta tango delta zulu gentle rapid whiskey harvest
+
+lima alpha river india echo charlie yankee xray india charlie quietly river golf yankee delta zulu timber mountain victor victor kilo yankee mike cloud romeo ledger whiskey harvest yankee cloud cloud field harvest lima tango tango yankee gentle tango lima gentle bravo foxtrot echo uniform echo charlie rapid river delta zulu zulu rapid harvest rapid zulu delta november river oscar mountain november hotel river tango mountain alpha kilo foxtrot timber juliet
+
+sierra oscar oscar victor ledger cloud juliet whiskey river kilo echo mike whiskey india papa quebec charlie uniform echo xray rapid river juliet romeo alpha stone papa oscar yankee river india victor juliet delta foxtrot sierra quietly gentle harvest ledger quebec timber ledger ledger zulu juliet sierra delta yankee sierra cloud juliet lima field stone delta bravo ledger quebec tango india xray oscar foxtrot india papa november ledger river juliet quebec mountain sierra bravo uniform sierra quietly harvest tango stone yankee gentle sierra bravo delta hotel november india cloud quietly papa bravo xray stone foxtrot zulu
+
+The document about recipe lentils concludes with key ORDER-ID-10413.

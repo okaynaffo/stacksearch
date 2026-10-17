@@ -1,0 +1,18 @@
+# Notes on internship stipend
+
+
+The internship stipend is 25,000 INR per month, paid on the 5th.
+
+Reference key ORDER-ID-10401 for exact lookup.
+
+quietly golf papa golf romeo foxtrot papa alpha romeo delta victor quebec harvest quebec hotel zulu hotel oscar papa zulu romeo mike river juliet romeo echo india quebec kilo alpha oscar zulu juliet hotel golf zulu quietly mike echo rapid xray mountain river timber rapid cloud stone charlie zulu timber hotel november river kilo echo quebec delta november november ledger cloud november romeo field alpha oscar uniform oscar stone rapid november juliet timber whiskey field charlie echo charlie oscar rapid yankee rapid quebec field charlie papa romeo xray quietly echo hotel whiskey mountain rapid mountain echo sierra river quebec victor kilo papa charlie golf field romeo alpha charlie oscar xray sierra stone rapid xray zulu ledger kilo
+
+echo timber india mike field harvest papa victor mountain kilo mike whiskey river cloud whiskey alpha golf oscar foxtrot river ledger zulu romeo stone foxtrot delta november bravo gentle mike mountain river stone charlie quietly zulu juliet uniform tango river stone hotel sierra india hotel victor sierra sierra quietly oscar uniform mike stone mountain ledger papa yankee timber alpha papa quebec rapid alpha timber rapid zulu romeo gentle sierra india victor stone papa lima quietly gentle stone tango quebec field golf field xray harvest timber bravo harvest charlie oscar whiskey uniform papa hotel mike cloud stone foxtrot field xray charlie papa gentle oscar whiskey bravo gentle oscar foxtrot alpha xray oscar
+
+oscar rapid mountain rapid kilo charlie tango kilo field papa harvest tango mike ledger november charlie alpha gentle golf delta gentle juliet golf quietly golf november lima zulu kilo yankee hotel papa xray gentle rapid timber rapid lima mike sierra sierra quebec river foxtrot romeo oscar kilo hotel xray xray timber sierra echo victor timber november delta sierra field stone mountain river india cloud lima cloud stone lima mountain cloud harvest whiskey alpha india india timber tango oscar xray echo zulu hotel echo yankee charlie india foxtrot lima sierra field quebec victor hotel cloud november lima victor rapid stone golf mike alpha victor zulu mike sierra timber tango foxtrot victor whiskey india foxtrot mountain field echo uniform golf
+
+oscar yankee uniform rapid delta cloud oscar harvest yankee rapid kilo river quietly foxtrot mike golf yankee romeo harvest xray xray quietly oscar yankee lima delta foxtrot zulu hotel xray golf mike stone field mountain hotel delta stone romeo echo kilo harvest juliet oscar tango ledger papa zulu tango field quebec echo papa charlie ledger quebec mountain harvest gentle hotel mike charlie sierra stone tango tango mountain xray charlie stone juliet uniform stone golf charlie juliet mountain harvest
+
+whiskey harvest whiskey rapid papa gentle zulu ledger field tango harvest quebec field alpha cloud field foxtrot bravo tango timber rapid papa harvest november harvest cloud charlie xray victor stone gentle yankee river golf whiskey quebec quebec charlie gentle alpha kilo delta stone delta romeo cloud yankee oscar victor delta romeo timber papa rapid cloud xray yankee hotel victor golf quietly mountain timber kilo juliet quebec zulu mountain tango cloud mike rapid harvest field tango foxtrot foxtrot lima golf cloud quietly alpha harvest mountain field river alpha juliet papa kilo cloud hotel xray stone papa quietly gentle gentle harvest xray bravo juliet alpha lima
+
+The document about internship stipend concludes with key ORDER-ID-10401.

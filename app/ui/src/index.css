@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/*
+ * Phase 0 renders raw /status JSON (PLAN.md §13: "No real UI yet — raw JSON in the window
+ * is fine"). The styling here exists so that the same bundle is presentable once Phase 6
+ * adds the search bar and answer panel, and so the dev-host contract in §4 is exercised
+ * for real rather than against a blank page.
+ */
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: transparent;
+  color: #e5e7eb;
+  font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* In the browser dev host the window is a normal page, so it needs its own backdrop.
+   Under Tauri the window is transparent and vibrancy shows through (PLAN.md §11.2). */
+.dev-host body {
+  background: rgb(17 17 20 / 0.92);
+}

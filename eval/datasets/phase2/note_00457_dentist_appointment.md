@@ -1,0 +1,20 @@
+# Notes on dentist appointment
+
+
+The teeth cleaning and checkup visit is on Tuesday, June 3 at 10:30 AM.
+
+Reference key ORDER-ID-10457 for exact lookup.
+
+river golf mike mike stone bravo victor lima echo cloud mountain river hotel golf stone mike river kilo xray stone alpha uniform sierra gentle xray sierra rapid papa victor harvest juliet kilo cloud river foxtrot hotel bravo papa charlie papa kilo alpha oscar gentle golf november mountain papa uniform ledger quebec mountain tango oscar whiskey mike tango harvest river victor victor hotel mike golf delta sierra zulu alpha tango echo ledger sierra gentle kilo juliet stone mike romeo cloud delta yankee
+
+yankee echo quietly bravo cloud oscar romeo lima quebec cloud sierra foxtrot bravo whiskey lima foxtrot yankee romeo alpha river field field victor quietly field sierra romeo charlie juliet victor echo uniform juliet mountain zulu foxtrot mike harvest rapid ledger papa india timber ledger zulu tango uniform cloud yankee juliet lima ledger timber foxtrot stone victor oscar tango river romeo river november oscar sierra uniform juliet november rapid india field romeo kilo river xray kilo river oscar ledger sierra timber rapid delta field harvest uniform kilo stone gentle gentle foxtrot mike mike papa kilo echo stone field
+
+mike uniform mountain foxtrot tango zulu stone foxtrot xray field quietly juliet rapid charlie river oscar mike victor sierra bravo xray delta ledger river zulu sierra bravo juliet victor india quietly sierra foxtrot hotel yankee papa romeo delta papa whiskey kilo victor xray alpha romeo november juliet november romeo romeo gentle rapid lima cloud sierra golf mike timber kilo kilo bravo gentle stone yankee quietly zulu echo timber mike yankee charlie gentle whiskey sierra bravo cloud mountain juliet xray hotel uniform foxtrot stone mountain golf kilo mike quietly field charlie foxtrot golf juliet bravo papa harvest uniform romeo cloud oscar whiskey uniform
+
+juliet rapid field november zulu quietly oscar echo harvest ledger golf quietly victor harvest harvest kilo oscar delta oscar xray timber stone echo mike delta rapid timber oscar timber yankee hotel river sierra papa romeo november hotel yankee romeo papa foxtrot field oscar alpha uniform sierra harvest mountain echo india foxtrot india echo whiskey mountain whiskey quebec cloud harvest cloud oscar lima river foxtrot charlie gentle papa mike romeo xray kilo november whiskey bravo quebec stone kilo whiskey mountain victor sierra sierra mountain papa gentle timber rapid mountain juliet
+
+foxtrot foxtrot victor yankee rapid quebec sierra harvest kilo romeo foxtrot field stone victor november juliet field river kilo xray foxtrot harvest yankee papa ledger timber sierra bravo whiskey papa alpha bravo november gentle delta alpha delta rapid delta foxtrot alpha romeo romeo uniform river uniform india mike harvest oscar november timber xray cloud hotel river quebec timber oscar harvest stone romeo whiskey hotel juliet charlie november foxtrot papa papa juliet mountain field rapid alpha mike mike tango sierra timber mountain xray victor sierra hotel timber gentle uniform cloud papa whiskey bravo quietly mountain victor mike juliet delta oscar charlie echo xray bravo india ledger charlie gentle victor uniform sierra river stone mountain ledger mike stone quietly papa bravo
+
+harvest delta kilo xray uniform juliet ledger bravo delta alpha foxtrot stone whiskey alpha uniform rapid rapid charlie lima tango ledger quietly river india xray river river river mike oscar field hotel victor mountain golf harvest india mountain cloud foxtrot mike victor charlie timber quebec charlie river india rapid mike rapid kilo tango timber field quietly juliet yankee whiskey november bravo kilo charlie juliet tango kilo bravo whiskey lima zulu foxtrot xray whiskey rapid sierra mountain harvest zulu yankee foxtrot lima charlie foxtrot cloud hotel foxtrot november stone uniform sierra foxtrot timber alpha ledger
+
+The document about dentist appointment concludes with key ORDER-ID-10457.

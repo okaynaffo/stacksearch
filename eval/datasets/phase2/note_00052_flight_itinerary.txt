@@ -1,0 +1,14 @@
+# Notes on flight itinerary
+
+
+The flight departs from JFK at 8:40 AM with a layover in Chicago.
+
+Reference key ORDER-ID-10052 for exact lookup.
+
+romeo zulu kilo quebec kilo cloud alpha uniform charlie rapid yankee charlie quebec echo cloud november cloud charlie foxtrot mountain hotel lima rapid yankee sierra bravo quebec hotel gentle alpha field cloud cloud sierra lima oscar quebec tango papa romeo zulu kilo november quebec charlie india charlie timber zulu xray field oscar cloud alpha oscar hotel oscar rapid quietly quietly hotel cloud river harvest river echo
+
+echo xray golf india bravo foxtrot harvest rapid papa field cloud juliet yankee cloud lima ledger foxtrot sierra rapid cloud sierra mike bravo zulu hotel xray charlie xray field quebec harvest harvest india sierra november victor lima river cloud november juliet river india echo victor romeo yankee foxtrot field papa romeo yankee ledger quietly river kilo whiskey victor foxtrot cloud juliet zulu harvest uniform delta charlie uniform field echo uniform charlie harvest harvest foxtrot india xray echo field uniform mountain kilo charlie cloud quebec harvest golf alpha ledger alpha harvest golf yankee timber juliet mike juliet papa uniform oscar mountain whiskey charlie tango juliet xray river charlie xray victor
+
+whiskey mountain yankee stone victor zulu papa alpha harvest uniform tango mike quebec yankee field river juliet harvest india gentle cloud kilo delta gentle river november golf november ledger juliet gentle echo lima mountain alpha mountain victor hotel cloud ledger victor gentle romeo zulu field timber yankee gentle mountain echo whiskey xray echo whiskey gentle lima mike ledger bravo golf
+
+The document about flight itinerary concludes with key ORDER-ID-10052.

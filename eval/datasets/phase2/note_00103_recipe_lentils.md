@@ -1,0 +1,18 @@
+# Notes on recipe lentils
+
+
+To cook red lentils for dinner: rinse 2 cups of red lentils, boil them with spices, then simmer for 35 minutes.
+
+Reference key ORDER-ID-10103 for exact lookup.
+
+stone timber echo quietly papa xray stone victor field quebec timber charlie oscar uniform alpha echo india november juliet ledger field mountain cloud delta india mountain charlie alpha stone zulu mike foxtrot hotel november romeo mike charlie timber field kilo sierra whiskey cloud juliet echo november juliet quietly india november november kilo quietly delta timber foxtrot stone zulu uniform ledger gentle ledger yankee timber hotel gentle tango juliet quietly yankee echo hotel zulu foxtrot harvest ledger stone xray lima foxtrot hotel hotel quebec ledger alpha victor yankee yankee yankee alpha zulu timber tango juliet whiskey tango golf whiskey gentle lima zulu harvest juliet rapid whiskey harvest victor bravo river charlie hotel victor juliet yankee
+
+cloud mountain foxtrot quebec whiskey golf yankee harvest bravo foxtrot juliet yankee romeo victor victor romeo alpha alpha alpha yankee stone xray quebec kilo oscar ledger cloud stone field hotel juliet yankee echo xray india whiskey delta rapid echo delta gentle uniform echo river romeo rapid stone juliet romeo mountain lima uniform stone juliet yankee timber quebec echo quebec whiskey victor whiskey rapid charlie oscar alpha november golf hotel mike field foxtrot alpha papa quebec yankee harvest kilo hotel foxtrot field whiskey cloud ledger mountain bravo quietly romeo stone stone yankee alpha timber juliet bravo november rapid
+
+oscar tango oscar tango cloud uniform rapid sierra echo echo victor india kilo gentle zulu romeo bravo mike hotel harvest field whiskey field bravo bravo mike oscar mountain tango india india quietly victor field timber juliet oscar oscar november victor xray kilo yankee quebec harvest sierra xray field papa oscar uniform xray november mountain mike mike harvest tango victor papa foxtrot zulu stone foxtrot xray river delta stone oscar golf bravo golf echo echo oscar whiskey whiskey mountain delta mountain delta golf harvest
+
+oscar cloud mike november field whiskey yankee harvest papa cloud foxtrot yankee yankee bravo zulu whiskey india gentle quietly victor alpha zulu field charlie kilo romeo golf xray alpha ledger golf lima quebec charlie victor quietly river harvest november timber harvest zulu tango xray timber lima mike echo field november lima stone romeo golf gentle uniform river india xray field foxtrot kilo bravo zulu stone alpha quietly harvest sierra november kilo sierra harvest sierra rapid bravo timber gentle zulu mike mike golf ledger alpha alpha whiskey timber timber lima juliet foxtrot field xray cloud harvest uniform zulu romeo foxtrot harvest
+
+november echo hotel oscar foxtrot foxtrot quietly gentle zulu gentle quietly harvest oscar golf sierra kilo timber hotel hotel ledger india harvest rapid mike cloud tango delta papa mike kilo gentle charlie delta zulu mountain alpha rapid uniform oscar field yankee zulu cloud sierra harvest ledger uniform alpha bravo ledger timber whiskey stone ledger stone ledger echo november harvest rapid xray rapid sierra november bravo golf romeo papa charlie oscar kilo india bravo tango timber lima river oscar river quietly whiskey bravo romeo charlie delta kilo field whiskey field bravo stone
+
+The document about recipe lentils concludes with key ORDER-ID-10103.

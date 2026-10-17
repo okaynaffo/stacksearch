@@ -1,0 +1,13 @@
+# llama.cpp build pin (PLAN.md §4.1, TODO 0.1)
+#
+# scripts/fetch_llama_server.sh reads this file. Upstream publishes no checksum
+# manifest for these release assets, so SHA256 below is trust-on-first-use: it was
+# computed from the archive at this tag and is re-verified on every later fetch.
+#
+# To move to a newer llama.cpp: change LLAMA_TAG, re-download, replace the digest
+# with the value the script prints, and re-run scripts/bench_llm.py — the memory
+# numbers in PLAN.md §2.1 are build-specific.
+
+LLAMA_TAG=b11462
+LLAMA_ASSET=llama-b11462-bin-macos-arm64.tar.gz
+LLAMA_SHA256=b97c9721855e6267980c8cb06073e7c3dedda78dd0e7866e22a1f87cf8e486f1

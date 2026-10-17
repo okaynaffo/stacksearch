@@ -1,0 +1,18 @@
+# Notes on dentist appointment
+
+
+The teeth cleaning and checkup visit is on Tuesday, June 3 at 10:30 AM.
+
+Reference key ORDER-ID-10467 for exact lookup.
+
+alpha charlie tango quebec papa quebec kilo romeo quietly whiskey harvest stone yankee zulu stone alpha november xray tango quietly mountain sierra zulu papa mountain quebec november uniform india echo mountain november cloud november cloud india papa field yankee victor lima harvest kilo kilo mike cloud mike oscar harvest alpha stone timber river kilo quietly stone timber rapid delta papa november tango golf uniform river papa rapid yankee november lima golf cloud november uniform papa sierra harvest golf
+
+yankee kilo juliet romeo ledger lima echo hotel cloud gentle rapid alpha quebec xray whiskey gentle oscar river lima juliet harvest foxtrot golf tango quietly mountain rapid xray mike papa lima kilo whiskey juliet juliet november india tango delta papa golf mike foxtrot alpha timber hotel xray victor timber mike hotel cloud alpha stone quietly timber delta alpha india charlie india quebec river zulu cloud field yankee hotel yankee delta whiskey cloud harvest tango uniform lima echo cloud foxtrot november timber mike echo mike rapid cloud sierra uniform romeo lima whiskey juliet stone tango tango oscar juliet harvest papa juliet quietly quietly river mountain victor stone
+
+romeo charlie romeo ledger harvest charlie stone zulu yankee papa quebec gentle papa uniform harvest rapid bravo papa tango tango cloud lima india yankee foxtrot lima mountain zulu delta kilo tango romeo kilo harvest bravo ledger zulu ledger tango bravo tango lima hotel xray victor xray kilo delta alpha yankee tango river romeo papa india field bravo sierra oscar gentle uniform kilo alpha juliet whiskey tango gentle delta yankee whiskey zulu zulu quebec romeo tango stone delta zulu rapid whiskey zulu juliet xray timber foxtrot mountain foxtrot november xray mike victor sierra harvest charlie papa cloud delta oscar lima bravo mike hotel uniform xray papa field quebec gentle foxtrot romeo hotel golf river papa uniform stone
+
+charlie romeo field cloud whiskey xray foxtrot oscar charlie kilo oscar harvest charlie whiskey bravo golf harvest romeo uniform alpha victor gentle stone sierra quebec harvest victor rapid alpha tango zulu rapid cloud cloud whiskey oscar november kilo quietly field november zulu tango quebec xray delta river harvest juliet alpha tango zulu gentle foxtrot cloud alpha delta golf ledger echo uniform hotel golf mike whiskey rapid river uniform november river stone romeo harvest foxtrot mountain yankee uniform november quietly xray yankee romeo lima bravo romeo xray kilo zulu whiskey sierra quebec november romeo juliet papa zulu quietly lima stone yankee foxtrot quietly kilo quietly rapid oscar xray kilo cloud foxtrot romeo juliet tango whiskey quebec stone xray harvest bravo
+
+lima alpha stone alpha foxtrot bravo rapid hotel foxtrot xray foxtrot cloud victor quebec stone delta echo oscar quietly xray victor timber charlie tango mike cloud quietly mike quietly river cloud ledger india romeo ledger oscar golf lima xray harvest uniform lima charlie hotel charlie gentle papa oscar kilo cloud quietly harvest timber kilo field xray romeo river stone victor november papa field stone xray sierra quietly papa oscar oscar xray juliet golf papa stone harvest
+
+The document about dentist appointment concludes with key ORDER-ID-10467.

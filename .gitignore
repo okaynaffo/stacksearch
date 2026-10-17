@@ -1,0 +1,40 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Node / UI
+node_modules/
+app/ui/dist/
+app/ui/*.tsbuildinfo
+app/src-tauri/target/
+app/src-tauri/gen/
+
+# Models and vendored binaries (large, reproducible from scripts/)
+models/
+vendor/
+.cache/
+*.gguf
+*.onnx
+
+# Local index / data (see PLAN.md section 9)
+*.db
+*.db-wal
+*.db-shm
+/index/
+
+# The synthetic evaluation corpus is regenerable from eval/datasets; the reports are
+# deliverables and are tracked.
+eval/corpus/
+
+# macOS
+.DS_Store
+
+# Local secrets
+.env
+.env.*
+!.env.example

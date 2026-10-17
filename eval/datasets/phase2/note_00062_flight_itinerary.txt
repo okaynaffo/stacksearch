@@ -1,0 +1,14 @@
+# Notes on flight itinerary
+
+
+The flight departs from JFK at 8:40 AM with a layover in Chicago.
+
+Reference key ORDER-ID-10062 for exact lookup.
+
+foxtrot river oscar timber hotel bravo mike juliet juliet india bravo river charlie field xray rapid cloud golf quebec rapid cloud yankee zulu golf field kilo rapid mike quietly india golf ledger timber oscar whiskey papa delta rapid india gentle ledger echo ledger mountain alpha victor field november oscar charlie echo tango november hotel cloud echo xray xray golf yankee charlie rapid foxtrot victor juliet juliet india harvest gentle kilo cloud yankee foxtrot cloud field harvest lima harvest foxtrot bravo romeo mountain mountain cloud zulu victor rapid rapid ledger alpha bravo papa romeo victor quebec harvest rapid lima cloud romeo golf rapid charlie quebec romeo zulu tango delta juliet echo mountain juliet ledger uniform golf cloud alpha
+
+river foxtrot zulu bravo quebec oscar quebec foxtrot november bravo xray november alpha tango hotel hotel juliet tango quietly cloud golf india hotel yankee gentle timber tango river golf zulu harvest whiskey victor kilo oscar papa bravo yankee romeo mountain india charlie sierra timber hotel uniform alpha romeo charlie india uniform mike quebec quietly india golf november golf tango field sierra mountain timber november gentle uniform river ledger hotel foxtrot field ledger romeo romeo juliet ledger
+
+yankee quebec whiskey romeo sierra harvest rapid quebec gentle oscar zulu quietly rapid papa quietly whiskey mountain november echo field timber cloud juliet harvest delta kilo golf papa juliet mike lima harvest tango field stone november stone foxtrot uniform hotel echo cloud quebec rapid kilo echo xray oscar lima ledger lima foxtrot quebec field bravo river sierra alpha gentle romeo juliet foxtrot river river alpha
+
+The document about flight itinerary concludes with key ORDER-ID-10062.

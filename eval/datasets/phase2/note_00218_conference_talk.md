@@ -1,0 +1,20 @@
+# Notes on conference talk
+
+
+The talk is on the main stage at 2:00 PM with 12 slides.
+
+Reference key ORDER-ID-10218 for exact lookup.
+
+quietly hotel uniform echo victor ledger charlie mike golf stone juliet mountain india stone xray uniform mike quietly zulu cloud ledger romeo november field mountain zulu river india echo stone golf juliet foxtrot zulu timber river hotel quebec timber oscar november echo quebec lima ledger mike echo echo november harvest rapid sierra ledger timber victor kilo foxtrot hotel papa rapid quietly foxtrot november india rapid golf quebec tango xray river echo gentle bravo sierra mike cloud stone gentle cloud yankee mike alpha zulu foxtrot golf xray romeo rapid gentle tango river november romeo india river quebec quietly oscar zulu tango tango delta quebec india mountain
+
+romeo cloud golf juliet sierra victor gentle whiskey romeo timber victor golf yankee river field ledger lima mike juliet victor field quebec india tango bravo foxtrot kilo stone delta timber juliet india november whiskey quietly river mike juliet zulu delta papa rapid victor charlie foxtrot gentle romeo echo romeo ledger quebec hotel sierra xray oscar tango november kilo xray uniform gentle hotel charlie romeo harvest river echo mike quebec foxtrot oscar quietly
+
+sierra harvest xray whiskey uniform november mountain tango papa gentle delta papa quietly romeo quietly ledger field ledger whiskey cloud juliet alpha field quietly romeo harvest rapid uniform golf victor kilo ledger lima ledger cloud charlie papa uniform hotel xray field timber river lima victor gentle lima yankee river romeo zulu zulu timber harvest field xray cloud oscar uniform ledger quietly victor quebec sierra timber gentle bravo foxtrot zulu
+
+foxtrot lima juliet river rapid golf mike harvest juliet alpha echo field cloud delta zulu timber victor xray xray november mountain xray alpha cloud delta golf quietly field juliet tango zulu river quebec xray quebec bravo golf november golf juliet lima bravo lima stone alpha echo stone xray india gentle mike lima golf sierra gentle november india tango sierra quebec papa papa kilo gentle field cloud oscar echo river zulu hotel zulu gentle harvest stone tango river kilo yankee bravo bravo sierra november quebec river charlie whiskey mike stone india yankee yankee river quietly golf rapid alpha quebec zulu xray harvest victor quebec alpha oscar quebec stone ledger kilo whiskey lima sierra gentle juliet victor charlie
+
+mike foxtrot mike victor alpha timber quebec november zulu juliet gentle mountain ledger river timber bravo bravo cloud harvest charlie november ledger golf alpha papa kilo romeo river november rapid bravo echo uniform rapid hotel rapid november timber papa november quietly bravo alpha november quietly charlie golf tango oscar uniform juliet field xray bravo lima gentle november november echo hotel india whiskey sierra golf bravo india river harvest bravo zulu zulu echo delta stone alpha whiskey zulu papa november lima india echo hotel uniform delta charlie mountain harvest cloud foxtrot india gentle timber delta bravo victor hotel whiskey quietly yankee lima
+
+rapid romeo charlie juliet stone bravo harvest tango stone delta charlie cloud juliet echo foxtrot delta yankee mountain sierra foxtrot delta ledger whiskey charlie stone india delta quebec romeo alpha uniform hotel india quietly oscar romeo rapid field oscar bravo quebec mountain quebec romeo xray golf rapid zulu november alpha kilo quietly cloud lima bravo echo gentle hotel ledger golf timber mountain quietly lima golf golf golf field foxtrot charlie river romeo delta cloud echo mike quebec mountain quebec xray ledger victor golf uniform stone cloud juliet kilo stone india uniform alpha juliet
+
+The document about conference talk concludes with key ORDER-ID-10218.
