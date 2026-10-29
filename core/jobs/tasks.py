@@ -24,6 +24,7 @@ from core.connectors.email import EmailConnector
 from core.connectors.email_imap import ImapEmailConnector, advance_cursor, split_external_id
 from core.connectors.files import FilesConnector
 from core.connectors.pdf import PdfConnector, resolve_fs_path
+from core.debug_log import log_event
 from core.extract.browser import read_history
 from core.extract.chat import parse_chat_export
 from core.extract.email import parse_email_bytes, parse_email_container
@@ -44,6 +45,23 @@ from core.index.writer import (
 from core.jobs import queue as job_queue
 
 MAX_FILE_BYTES = 50 * 1024 * 1024
+
+
+def _mtime_iso(path: Path) -> str | None:
+    """ISO date of a file's mtime, or None when it has no stat-able file.
+
+    File-backed documents otherwise land with ``modified_at`` NULL, which hides
+    them from every date filter and the §7.2 recency boost. The connector's own
+    date (email, chat) still wins when it provides one.
+    """
+    from datetime import datetime
+
+    try:
+        if path.is_file():
+            return datetime.fromtimestamp(path.stat().st_mtime).date().isoformat()
+    except OSError:
+        return None
+    return None
 
 
 def _source_row(conn: sqlite3.Connection, source_id: int) -> dict[str, Any] | None:
@@ -254,7 +272,7 @@ def run_index_doc(
         _, _, rel = external_id.partition("::")
         title = rel or external_id
         author = None
-        modified_at = None
+        modified_at = _mtime_iso(fs_path)
         meta = {}
 
         def _skip(reason: str) -> dict[str, Any]:
@@ -386,7 +404,9 @@ def run_scan(
     queue_cfg = _gs().queue
     src = _source_row(conn, source_id)
     if src is None:
+        log_event("scan", "unknown-source", level="WARNING", source_id=source_id)
         return {"ok": False, "error": f"unknown source {source_id}"}
+    log_event("scan", "begin", source_id=source_id, kind=src["kind"], config=src["config"])
     connector = _connector_for(src["kind"])
     seen: set[str] = set()
     enqueued = 0
@@ -417,6 +437,15 @@ def run_scan(
         )
         deleted += 1
     conn.execute("UPDATE sources SET last_sync_at = datetime('now') WHERE id = ?", (source_id,))
+    log_event(
+        "scan",
+        "end",
+        source_id=source_id,
+        kind=src["kind"],
+        enqueued=enqueued,
+        deleted=deleted,
+        seen=len(seen),
+    )
     return {"ok": True, "enqueued": enqueued, "deleted": deleted}
 
 

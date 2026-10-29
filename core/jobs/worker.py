@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from core.config import Queue, get_settings
+from core.debug_log import log_event, log_exception
 from core.index.db import connect
 from core.index.writer import record_error
 from core.jobs import queue as job_queue
@@ -58,6 +59,7 @@ class Worker:
         job_queue.reclaim_orphans(connect(self.db_path))
         self._thread = threading.Thread(target=self._loop, name="index-worker", daemon=True)
         self._thread.start()
+        log_event("worker", "thread-started", db_path=str(self.db_path), embed=self.embed)
 
     def stop(self, *, timeout_s: float = 5.0) -> None:
         self._stop.set()
@@ -65,16 +67,20 @@ class Worker:
             self._thread.join(timeout=timeout_s)
             self._thread = None
         self.state = "stopped"
+        log_event("worker", "thread-stopped")
 
     # -- main loop -----------------------------------------------------------
 
     def _loop(self) -> None:
         conn = connect(self.db_path)
+        log_event("worker", "loop-start", db_path=str(self.db_path))
         try:
             self._reconcile(conn)
             last_reconcile = time.monotonic()
             while not self._stop.is_set():
                 if self.policy.query_paused:
+                    if self.state != "paused-query":
+                        log_event("worker", "paused", reason=self.policy.paused_reason())
                     self.state = "paused-query"
                     time.sleep(0.1)
                     continue
@@ -84,29 +90,54 @@ class Worker:
                     last_reconcile = time.monotonic()
                 job = job_queue.claim_next(conn, bulk_allowed=self.policy.bulk_allowed())
                 if job is None:
+                    if self.state != "idle":
+                        log_event("worker", "idle")
                     self.state = "idle"
                     time.sleep(self.poll_idle_s)
                     continue
                 self.state = f"working:{job['kind']}"
+                log_event(
+                    "worker",
+                    "job-claimed",
+                    level="DEBUG",
+                    job_id=job.get("id"),
+                    kind=job.get("kind"),
+                )
                 self._execute(conn, job)
+        except Exception as exc:  # noqa: BLE001 — a dead worker must leave a trace
+            log_exception("worker", "loop-crashed", exc, state=self.state)
+            self.state = "error"
+            raise
         finally:
             conn.close()
             if self.state != "stopped":
                 self.state = "idle"
+            log_event("worker", "loop-exit", state=self.state)
 
     def _reconcile(self, conn: sqlite3.Connection) -> None:
         from core.jobs.tasks import schedule_reconcile
 
         try:
             scheduled = schedule_reconcile(conn)
-        except Exception:  # noqa: BLE001 — reconcile must never stall the worker
+        except Exception as exc:  # noqa: BLE001 — reconcile must never stall the worker
+            log_exception("worker", "reconcile-failed", exc)
             return
         if scheduled:
+            log_event("worker", "reconcile-scheduled", source_ids=scheduled)
             self.progress("reconcile-scheduled", source_ids=scheduled)
 
     def _execute(self, conn: sqlite3.Connection, job: dict[str, Any]) -> None:
         kind = job["kind"]
         payload = job["payload"]
+        started = time.perf_counter()
+        log_event(
+            "job",
+            "begin",
+            job_id=job.get("id"),
+            kind=kind,
+            payload=payload,
+            attempts=job.get("attempts"),
+        )
         try:
             if kind == "index_doc":
                 result = run_index_doc(
@@ -134,6 +165,15 @@ class Worker:
             error = f"{type(exc).__name__}: {exc}"
             if outcome == "dropped":
                 self._record_doc_error(conn, payload, error)
+            log_exception(
+                "job",
+                "failed",
+                exc,
+                job_id=job.get("id"),
+                kind=kind,
+                outcome=outcome,
+                duration_ms=round((time.perf_counter() - started) * 1000, 1),
+            )
             self.progress("job-failed", job=job, error=error, outcome=outcome)
             return
 
@@ -142,6 +182,17 @@ class Worker:
             job_queue.complete(conn, job["id"])
         else:
             job_queue.complete(conn, job["id"])
+        log_event(
+            "job",
+            "end",
+            job_id=job.get("id"),
+            kind=kind,
+            ok=result.get("ok"),
+            skipped=result.get("skipped"),
+            error=result.get("error"),
+            result={k: v for k, v in result.items() if k not in {"error"}},
+            duration_ms=round((time.perf_counter() - started) * 1000, 1),
+        )
         self.progress("job-done", job=job, result=result)
 
     def _record_doc_error(

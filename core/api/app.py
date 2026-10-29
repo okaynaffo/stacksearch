@@ -15,16 +15,32 @@ from __future__ import annotations
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from core.api.events import bus
 from core.api.routes import router
 from core.config import REPO_ROOT, get_settings
+from core.debug_log import (
+    log_event,
+    log_exception,
+    log_paths,
+    new_request_id,
+    process_info,
+    redact_query,
+    set_request_id,
+    setup_logging,
+)
 from core.index import open_index
 
 UI_DIST = REPO_ROOT / "app" / "ui" / "dist"
+
+#: Routes the UI polls continuously. Their request/response records are kept at DEBUG
+#: level so an investigation can filter them out without losing them.
+_QUIET_PATHS = frozenset(
+    {"/status", "/health", "/sources", "/events", "/debug/log", "/debug/logs"}
+)
 
 
 @asynccontextmanager
@@ -32,23 +48,70 @@ async def lifespan(app: FastAPI):
     """Start the Phase 3 index worker + watcher alongside the service (§6.6, §6.2)."""
     worker = getattr(app.state, "worker", None)
     watcher = getattr(app.state, "watcher", None)
+    settings = get_settings()
+    log_event(
+        "process",
+        "startup",
+        **process_info(),
+        api_host=settings.api_host,
+        api_port=settings.api_port,
+        data_dir=str(settings.data_dir),
+        index_path=str(settings.index_db_path),
+        logs=log_paths(),
+        worker=worker is not None,
+        watcher=watcher is not None,
+        sources=_source_count(getattr(app.state, "index", None)),
+    )
     if worker is not None:
+        log_event("worker", "starting")
         worker.start()
+        log_event("worker", "started", state=worker.state)
     if watcher is not None:
-        try:
-            watcher.start()
-        except Exception:  # noqa: BLE001 — search works without live watching
-            pass
+        # Live watching is DISABLED on purpose.
+        #
+        # watchdog's FSEvents backend calls FSEventStreamCreate -> open() on the root,
+        # and for a TCC-gated path like ~/Documents that call blocks while macOS waits
+        # on the "Files and Folders" prompt. Critically, the C extension holds the GIL
+        # across that blocking syscall, so a background thread cannot help: the GIL is
+        # starved and uvicorn's event loop can never accept a connection. The API binds
+        # but never answers, and the window shows a blank page.
+        #
+        # Watching is a convenience (auto-reindex on edit), not a requirement (§6.2):
+        # adding a source enqueues an initial scan, the reindex button forces a rescan,
+        # and the worker reconciles on a schedule. Correctness does not depend on it.
+        # The watcher object is still built so SourceChanged-driven paths keep working.
+        pass
     try:
         yield
     finally:
+        log_event("process", "shutdown", reason="lifespan-finally")
         if watcher is not None:
             try:
                 watcher.stop()
-            except Exception:  # noqa: BLE001, S110
-                pass
+                log_event("watcher", "stopped")
+            except Exception as exc:  # noqa: BLE001, S110
+                log_exception("watcher", "stop-failed", exc)
         if worker is not None:
+            log_event("worker", "stopping", state=worker.state)
             worker.stop()
+            log_event("worker", "stopped", state=worker.state)
+        # Stop the model server explicitly: it runs in its own session, so the host's
+        # process-group signal does not reach it. Leaving it resident both keeps ~3 GB
+        # allocated and poisons the next launch, whose new token the old server rejects.
+        try:
+            from core.llm.server import shutdown_supervisor
+
+            shutdown_supervisor("core shutdown")
+        except Exception as exc:  # noqa: BLE001
+            log_exception("llm", "shutdown-failed", exc)
+
+
+def _source_count(index: object | None) -> int | None:
+    """Best-effort source count for the startup record."""
+    try:
+        return index.conn.execute("SELECT COUNT(*) FROM sources").fetchone()[0]  # type: ignore[attr-defined]
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def create_app(*, open_database: bool = True) -> FastAPI:
@@ -57,6 +120,7 @@ def create_app(*, open_database: bool = True) -> FastAPI:
     ``open_database=False`` skips opening the index, which the API tests use so they do
     not touch the real data directory.
     """
+    setup_logging()
     settings = get_settings()
     settings.ensure_dirs()
 
@@ -66,6 +130,63 @@ def create_app(*, open_database: bool = True) -> FastAPI:
         description="Private, local-first personal search engine (PLAN.md).",
         lifespan=lifespan,
     )
+
+    @app.middleware("http")
+    async def _log_http(request: Request, call_next):  # type: ignore[no-untyped-def]
+        """Record every HTTP request/response, including duration and outcome.
+
+        This is the backbone of the audit trail: a route that forgets to log its own
+        action still leaves a request line behind, and a crash mid-request leaves the
+        ``begin`` line without a matching ``end``.
+        """
+        request_id = new_request_id()
+        set_request_id(request_id)
+        started = time.perf_counter()
+        path = request.url.path
+        query = redact_query(request.url.query)
+        quiet = path in _QUIET_PATHS
+        level = "DEBUG" if quiet else "INFO"
+        log_event(
+            "api.request",
+            "begin",
+            level=level,
+            method=request.method,
+            path=path,
+            query=query,
+            client=request.client.host if request.client else None,
+            content_length=request.headers.get("content-length"),
+        )
+        try:
+            response = await call_next(request)
+        except Exception as exc:  # noqa: BLE001 — log, then let FastAPI's handler reply
+            log_exception(
+                "api.error",
+                "unhandled",
+                exc,
+                method=request.method,
+                path=path,
+                query=query,
+                duration_ms=round((time.perf_counter() - started) * 1000, 1),
+            )
+            set_request_id(None)
+            raise
+        duration_ms = round((time.perf_counter() - started) * 1000, 1)
+        status_code = response.status_code
+        response_level = "WARNING" if status_code >= 400 else level
+        log_event(
+            "api.response",
+            "end",
+            level=response_level,
+            method=request.method,
+            path=path,
+            query=query,
+            status_code=status_code,
+            duration_ms=duration_ms,
+            response_length=response.headers.get("content-length"),
+            streaming=(response.headers.get("content-type", "").startswith("text/event-stream")),
+        )
+        set_request_id(None)
+        return response
     app.state.started_at = time.time()
     app.state.settings = settings
     app.state.index = None

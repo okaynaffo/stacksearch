@@ -45,7 +45,10 @@ def extract_token(request: Request) -> str | None:
 #: `/events` other than a query parameter. Scoped to this one route because a token in a
 #: URL can end up in logs and history, which is why every other route is header-only and
 #: the shipped app proxies the stream from Rust with a header instead (§13.1).
-QUERY_TOKEN_ROUTES = frozenset({"/events"})
+#: ``/debug/log`` is included for the same reason but only so a final batch can be sent
+#: with ``navigator.sendBeacon`` from ``pagehide``; the endpoint is local-only and the
+#: log middleware redacts the query string before writing it.
+QUERY_TOKEN_ROUTES = frozenset({"/events", "/debug/log"})
 
 
 def query_token(request: Request) -> str | None:

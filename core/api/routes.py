@@ -25,6 +25,13 @@ from core.config import (
     get_settings,
     model_path,
 )
+from core.debug_log import (
+    log_event,
+    log_exception,
+    log_paths,
+    sanitize,
+    write_ui_records,
+)
 from core.index import forget_source, stats
 
 #: Valid source kinds (PLAN.md §6.2).
@@ -63,6 +70,7 @@ async def status(request: Request) -> dict[str, Any]:
             # A status endpoint that throws gives the UI nothing to report, which is
             # worse than reporting that the index is unavailable.
             index_error = f"{type(exc).__name__}: {exc}"
+            log_exception("api.status", "index-stats-failed", exc)
 
     llm = getattr(request.app.state, "llm_supervisor", None)
     embedder = getattr(request.app.state, "embedder", None)
@@ -115,14 +123,20 @@ async def status(request: Request) -> dict[str, Any]:
         "llm_server": llm.state.as_dict() if llm else {"running": False},
         "queue": index_stats.get("jobs_pending", 0) if index_stats else 0,
         "queue_paused_reason": app_policy.paused_reason() if app_policy else None,
+        # The switch in Settings reflects the policy signal itself, not the derived pause
+        # reason (which is null whenever the queue happens to be drained).
+        "battery_low": app_policy.battery_paused if app_policy else False,
+        "idle_timeout_minutes": round(llm.idle_timeout_s / 60) if llm else None,
         "worker_state": worker.state if worker else "disabled",
         "events_subscribers": bus.subscriber_count,
+        "logs": log_paths(),
     }
 
 
 @router.get("/events")
 async def events(request: Request) -> StreamingResponse:
     """SSE stream of indexing progress for the UI (PLAN.md §10)."""
+    log_event("api.events", "subscribe", subscribers=bus.subscriber_count + 1)
     return StreamingResponse(
         event_stream(bus),
         media_type="text/event-stream",
@@ -155,7 +169,9 @@ async def search(request: Request, body: dict[str, Any]) -> dict[str, Any]:
     query = str(body.get("query", "")).strip()
     limit = int(body.get("limit", 20) or 20)
     limit = max(1, min(limit, 100))
+    log_event("search", "begin", query=query, limit=limit, filters=body.get("filters"))
     if not query:
+        log_event("search", "end", query=query, results=0, latency_ms=0, note="empty query")
         return {"results": [], "latency_ms": 0}
     app_policy = getattr(request.app.state, "policy", None)
     if app_policy is not None:
@@ -185,6 +201,15 @@ async def search(request: Request, body: dict[str, Any]) -> dict[str, Any]:
     response: dict[str, Any] = {"results": outcome["results"], "latency_ms": latency_ms}
     if outcome["warnings"]:
         response["warnings"] = outcome["warnings"]
+    log_event(
+        "search",
+        "end",
+        query=query,
+        results=len(outcome["results"]),
+        latency_ms=latency_ms,
+        warnings=outcome["warnings"],
+        top_titles=[r.get("title") for r in outcome["results"][:5]],
+    )
     return response
 
 
@@ -215,6 +240,7 @@ async def answer(request: Request, body: dict[str, Any]) -> StreamingResponse:
     client = getattr(request.app.state, "llm_client", None)
 
     pause = policy.query_pause() if policy is not None else nullcontext()
+    log_event("answer", "begin", query=query, limit=limit, filters=body.get("filters"))
 
     def generate():  # sync generator: Starlette runs it in a threadpool
         with pause:
@@ -228,7 +254,40 @@ async def answer(request: Request, body: dict[str, Any]) -> StreamingResponse:
                     limit=limit,
                     filters=filters,
                 ):
-                    yield f"event: {frame['event']}\ndata: {json.dumps(frame['data'])}\n\n"
+                    event = frame.get("event")
+                    data = frame.get("data") or {}
+                    if event == "sources":
+                        log_event(
+                            "answer",
+                            "sources",
+                            query=query,
+                            count=len(data.get("sources") or []),
+                            warnings=data.get("warnings") or [],
+                        )
+                    elif event == "done":
+                        log_event(
+                            "answer",
+                            "end",
+                            query=query,
+                            grounded=data.get("grounded"),
+                            citations=data.get("citations"),
+                            flags=data.get("flags"),
+                            warnings=data.get("warnings"),
+                            support_rate=data.get("support_rate"),
+                            latency_ms=data.get("latency_ms"),
+                            text_chars=len(str(data.get("text") or "")),
+                            text=data.get("text"),
+                        )
+                    yield f"event: {event}\ndata: {json.dumps(data)}\n\n"
+            except GeneratorExit:
+                # The UI aborted the stream (new query, Escape, window closed). This is
+                # normal, but the record is exactly what distinguishes a user abort from
+                # a mid-answer crash when reconstructing a quit.
+                log_event("answer", "cancelled", level="WARNING", query=query)
+                raise
+            except Exception as exc:  # noqa: BLE001 — log, then let the client see EOF
+                log_exception("answer", "failed", exc, query=query)
+                raise
             finally:
                 try:
                     from core.index.db import trim_page_cache
@@ -260,6 +319,7 @@ async def reindex_source(request: Request, source_id: int) -> dict[str, Any]:
     if row is None:
         from fastapi import HTTPException
 
+        log_event("source", "reindex-not-found", level="WARNING", source_id=source_id)
         raise HTTPException(status_code=404, detail=f"unknown source {source_id}")
     job_id = job_queue.enqueue(
         request.app.state.index.conn,
@@ -267,6 +327,7 @@ async def reindex_source(request: Request, source_id: int) -> dict[str, Any]:
         {"source_id": source_id, "child_priority": settings.queue.priority_live_change},
         priority=settings.queue.priority_reindex,
     )
+    log_event("source", "reindex", source_id=source_id, job_id=job_id)
     return {"job_id": job_id, "source_id": source_id}
 
 
@@ -314,7 +375,9 @@ async def list_sources(request: Request) -> dict[str, Any]:
     rows = request.app.state.index.conn.execute(
         "SELECT * FROM sources ORDER BY id"
     ).fetchall()
-    return {"sources": [_source_summary(request.app.state.index.conn, r) for r in rows]}
+    sources = [_source_summary(request.app.state.index.conn, r) for r in rows]
+    log_event("source", "list", level="DEBUG", count=len(sources))
+    return {"sources": sources}
 
 
 @router.post("/sources", status_code=201)
@@ -323,10 +386,26 @@ async def create_source(request: Request, body: SourceCreate) -> dict[str, Any]:
     from core.jobs import queue as job_queue
 
     if body.kind not in SOURCE_KINDS:
+        log_event(
+            "source",
+            "create-rejected",
+            level="WARNING",
+            kind=body.kind,
+            name=body.name,
+            reason="unknown kind",
+        )
         raise HTTPException(
             status_code=422,
             detail=f"unknown source kind {body.kind!r}; expected one of {SOURCE_KINDS}",
         )
+    log_event(
+        "source",
+        "create-begin",
+        kind=body.kind,
+        name=body.name,
+        config=sanitize(body.config),
+        enabled=body.enabled,
+    )
     conn = request.app.state.index.conn
     conn.execute("BEGIN IMMEDIATE")
     try:
@@ -351,6 +430,7 @@ async def create_source(request: Request, body: SourceCreate) -> dict[str, Any]:
             priority=settings.queue.priority_bulk,
         )
     row = conn.execute("SELECT * FROM sources WHERE id = ?", (source_id,)).fetchone()
+    log_event("source", "created", source_id=source_id, kind=body.kind, job_id=job_id)
     return {"source": _source_summary(conn, row), "job_id": job_id}
 
 
@@ -396,6 +476,15 @@ async def patch_source(request: Request, source_id: int, body: SourcePatch) -> d
             priority=settings.queue.priority_live_change,
         )
     updated = conn.execute("SELECT * FROM sources WHERE id = ?", (source_id,)).fetchone()
+    log_event(
+        "source",
+        "patched",
+        source_id=source_id,
+        name=body.name,
+        config=sanitize(body.config),
+        enabled=body.enabled,
+        rescan=body.config is not None or bool(body.enabled),
+    )
     return {"source": _source_summary(conn, updated)}
 
 
@@ -405,8 +494,10 @@ async def delete_source(request: Request, source_id: int) -> dict[str, Any]:
     conn = request.app.state.index.conn
     row = conn.execute("SELECT id FROM sources WHERE id = ?", (source_id,)).fetchone()
     if row is None:
+        log_event("source", "delete-not-found", level="WARNING", source_id=source_id)
         raise HTTPException(status_code=404, detail=f"unknown source {source_id}")
     removed = forget_source(conn, source_id)
+    log_event("source", "deleted", source_id=source_id, removed=removed)
     return {"forgotten": source_id, **removed}
 
 
@@ -421,8 +512,10 @@ async def set_battery_policy(request: Request, body: BatteryPolicyBody) -> dict[
     """Toggle the battery-pause signal (PLAN.md §6.6, §11.3)."""
     app_policy = getattr(request.app.state, "policy", None)
     if app_policy is None:
+        log_event("policy", "battery-unavailable", level="WARNING")
         raise HTTPException(status_code=503, detail="policy unavailable")
     app_policy.set_battery_low(body.low)
+    log_event("policy", "battery", low=body.low, paused_reason=app_policy.paused_reason())
     return {"battery_low": body.low, "paused_reason": app_policy.paused_reason()}
 
 
@@ -438,10 +531,12 @@ async def set_idle_timeout(request: Request, body: IdleTimeoutBody) -> dict[str,
     from core.llm.server import get_supervisor
 
     if body.minutes < 1:
+        log_event("policy", "idle-timeout-rejected", level="WARNING", minutes=body.minutes)
         raise HTTPException(status_code=422, detail="minutes must be >= 1")
     supervisor = getattr(request.app.state, "llm_supervisor", None) or get_supervisor()
     request.app.state.llm_supervisor = supervisor
     supervisor.set_idle_timeout(body.minutes)
+    log_event("policy", "idle-timeout", minutes=body.minutes)
     return {"minutes": body.minutes}
 
 
@@ -451,10 +546,20 @@ async def get_document(request: Request, document_id: int) -> dict[str, Any]:
     conn = request.app.state.index.conn
     row = conn.execute("SELECT * FROM documents WHERE id = ?", (document_id,)).fetchone()
     if row is None:
+        log_event("document", "not-found", level="WARNING", document_id=document_id)
         raise HTTPException(status_code=404, detail=f"unknown document {document_id}")
     chunks = conn.execute(
         "SELECT COUNT(*) FROM chunks WHERE document_id = ?", (document_id,)
     ).fetchone()[0]
+    log_event(
+        "document",
+        "get",
+        level="DEBUG",
+        document_id=document_id,
+        title=row["title"],
+        status=row["status"],
+        chunks=chunks,
+    )
     return {
         "id": row["id"],
         "source_id": row["source_id"],
@@ -485,6 +590,7 @@ async def set_answer_model(request: Request, body: AnswerModelChoice) -> dict[st
     from core.llm.server import get_supervisor
 
     if body.key not in LLM_MODELS:
+        log_event("model", "switch-rejected", level="WARNING", key=body.key)
         raise HTTPException(
             status_code=422,
             detail=f"unknown model key {body.key!r}; expected one of {sorted(LLM_MODELS)}",
@@ -493,14 +599,51 @@ async def set_answer_model(request: Request, body: AnswerModelChoice) -> dict[st
     request.app.state.llm_supervisor = supervisor
     changed = supervisor.model_key != body.key
     if changed:
+        log_event("model", "switch-begin", previous=supervisor.model_key, next=body.key)
         supervisor.stop("model switch")
         supervisor.model_key = body.key
         supervisor.state.model_key = body.key
+    log_event("model", "switch-end", key=body.key, changed=changed)
     return {
         "key": body.key,
         "changed": changed,
         "running": supervisor.state.running,
     }
+
+
+class LogBatch(BaseModel):
+    """Body for ``POST /debug/log`` — one batch of frontend records."""
+
+    records: list[dict[str, Any]] = Field(default_factory=list)
+
+
+@router.post("/debug/log")
+async def ingest_ui_logs(body: LogBatch) -> dict[str, Any]:
+    """Persist frontend click/key/lifecycle records in the core log file.
+
+    The UI cannot write files directly from a webview, so it batches records here. The
+    route is token-protected like every other route; the batch is bounded in
+    :func:`core.debug_log.write_ui_records`.
+    """
+    written = write_ui_records(body.records)
+    return {"received": len(body.records), "written": written}
+
+
+@router.get("/debug/logs")
+async def debug_logs() -> dict[str, Any]:
+    """Where this launch is writing logs, plus current sizes (Settings shows these)."""
+    paths = log_paths()
+    sizes: dict[str, int | None] = {}
+    from pathlib import Path
+
+    for key, value in paths.items():
+        if key == "dir":
+            continue
+        try:
+            sizes[key] = Path(value).stat().st_size
+        except OSError:
+            sizes[key] = None
+    return {"paths": paths, "sizes": sizes}
 
 
 @router.get("/health")
@@ -512,4 +655,5 @@ async def health() -> dict[str, str]:
     generated. There is no reason to expose even a "the app is running" signal to any
     process on the machine that does not.
     """
+    log_event("api.health", "ok", level="DEBUG")
     return {"status": "ok"}

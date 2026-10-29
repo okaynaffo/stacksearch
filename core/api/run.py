@@ -14,11 +14,21 @@ import os
 import uvicorn
 
 from core.config import get_settings
+from core.debug_log import log_event, log_paths, setup_logging
 
 
 def main() -> int:
+    setup_logging()
     settings = get_settings()
     settings.ensure_dirs()
+    log_event(
+        "process",
+        "boot",
+        api_host=settings.api_host,
+        api_port=settings.api_port,
+        index_path=str(settings.index_db_path),
+        logs=log_paths(),
+    )
 
     # The app module builds its own Settings when uvicorn imports it, so a token that was
     # generated here would not be the one the app validates — the printed token would be
@@ -31,6 +41,7 @@ def main() -> int:
     print(f"core service listening on http://{settings.api_host}:{settings.api_port}")
     print(f"  index : {settings.index_db_path}")
     print(f"  token : {settings.api_token}")
+    print(f"  logs  : {log_paths()['core']}")
     print("")
     print("Pass it to the UI as ?token=... or an X-Local-Token header. It is regenerated")
     print("on every launch (PLAN.md §9).", flush=True)

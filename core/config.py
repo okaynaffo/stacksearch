@@ -306,6 +306,12 @@ class Settings(BaseSettings):
         / "Application Support"
         / "stacksearch"
     )
+    #: Debug logs live in ~/Library/Logs (macOS convention), not the data dir, so they
+    #: are easy to find and can be pruned without touching the index. Overridable with
+    #: STACKSEARCH_LOG_DIR; core/debug_log.py resolves the same path for early logging.
+    logs_dir: Path = Field(
+        default_factory=lambda: Path.home() / "Library" / "Logs" / "StackSearch"
+    )
     models_dir: Path = REPO_ROOT / "models"
     vendor_dir: Path = REPO_ROOT / "vendor"
 
@@ -383,7 +389,7 @@ class Settings(BaseSettings):
         return self.vendor_dir / "llama-server" / f"llama-{LLAMA_TAG}" / "llama-server"
 
     def ensure_dirs(self) -> None:
-        for d in (self.data_dir, self.blob_cache_dir, self.models_dir):
+        for d in (self.data_dir, self.blob_cache_dir, self.models_dir, self.logs_dir):
             d.mkdir(parents=True, exist_ok=True)
 
 
