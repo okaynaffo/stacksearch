@@ -7,15 +7,26 @@
  */
 
 import { SOURCE_KINDS, type QueryFilters } from "./api";
+import { Button, Chip } from "./ui";
 
 type DatePreset = { key: string; label: string; days: number | null };
 
 const DATE_PRESETS: DatePreset[] = [
-  { key: "any", label: "any time", days: null },
-  { key: "week", label: "past week", days: 7 },
-  { key: "month", label: "past month", days: 30 },
-  { key: "year", label: "past year", days: 365 },
+  { key: "any", label: "Any time", days: null },
+  { key: "week", label: "Past week", days: 7 },
+  { key: "month", label: "Past month", days: 30 },
+  { key: "year", label: "Past year", days: 365 },
 ];
+
+const KIND_LABEL: Record<string, string> = {
+  files: "Files",
+  pdf: "PDF",
+  email: "Email",
+  email_imap: "IMAP",
+  browser: "Browser",
+  chat: "Chat",
+  code: "Code",
+};
 
 function daysAgo(days: number): string {
   const d = new Date();
@@ -34,54 +45,57 @@ export default function FilterChips({
   const activePreset =
     DATE_PRESETS.find((p) => p.days !== null && filters.date_from === daysAgo(p.days))?.key ??
     "any";
-
-  const chip = (active: boolean) =>
-    "rounded-full border px-2.5 py-0.5 text-xs transition-colors " +
-    (active
-      ? "border-sky-500/70 bg-sky-500/15 text-sky-200"
-      : "border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200");
+  const hasFilter = Boolean(filters.source_kind || filters.date_from || filters.date_to || filters.author);
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="source kind">
-        <button
-          type="button"
-          className={chip(activeKind === "any")}
+    <div className="filter-bar" role="group" aria-label="search filters">
+      <div className="filter-group" role="group" aria-label="source type">
+        <span className="filter-label">Type</span>
+        <Chip
+          active={activeKind === "any"}
           onClick={() => onChange({ ...filters, source_kind: undefined })}
         >
-          all
-        </button>
+          All
+        </Chip>
         {SOURCE_KINDS.map((kind) => (
-          <button
+          <Chip
             key={kind}
-            type="button"
-            className={chip(activeKind === kind)}
+            active={activeKind === kind}
             onClick={() =>
               onChange({ ...filters, source_kind: activeKind === kind ? undefined : kind })
             }
           >
-            {kind}
-          </button>
+            {KIND_LABEL[kind] ?? kind}
+          </Chip>
         ))}
       </div>
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="date range">
-        {DATE_PRESETS.map((p) => (
-          <button
-            key={p.key}
-            type="button"
-            className={chip(activePreset === p.key)}
+
+      <span className="filter-sep" aria-hidden="true" />
+
+      <div className="filter-group" role="group" aria-label="date range">
+        <span className="filter-label">When</span>
+        {DATE_PRESETS.map((preset) => (
+          <Chip
+            key={preset.key}
+            active={activePreset === preset.key}
             onClick={() =>
               onChange({
                 ...filters,
-                date_from: p.days === null ? undefined : daysAgo(p.days),
+                date_from: preset.days === null ? undefined : daysAgo(preset.days),
                 date_to: undefined,
               })
             }
           >
-            {p.label}
-          </button>
+            {preset.label}
+          </Chip>
         ))}
       </div>
+
+      {hasFilter ? (
+        <Button variant="ghost" size="sm" onClick={() => onChange({})}>
+          Clear
+        </Button>
+      ) : null}
     </div>
   );
 }

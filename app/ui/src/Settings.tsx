@@ -1,23 +1,63 @@
 /**
- * Settings panel (PLAN.md §11.3; TODO 6.3/6.4).
+ * Settings (PLAN.md §11.3; TODO 6.3/6.4).
  *
- * Owns everything the search view does not: source CRUD, the answer-model picker, live
- * indexing progress, the Full Disk Access affordance, and the diagnostics block that
- * replaces Phase 0's raw JSON dump.
+ * A two-pane macOS-style settings window: section rail on the left, one focused pane on
+ * the right. Everything the search surface does not own lives here — sources, the answer
+ * model, indexing behaviour, the global shortcut, privacy, and diagnostics.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
+import * as logger from "./logger";
+import {
+  ActivityIcon,
+  AlertIcon,
+  ChatIcon,
+  CheckIcon,
+  CodeIcon,
+  CommandIcon,
+  CopyIcon,
+  CpuIcon,
+  DatabaseIcon,
+  ExternalIcon,
+  FileTextIcon,
+  FolderIcon,
+  GlobeIcon,
+  LayersIcon,
+  LockIcon,
+  MailIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  RefreshIcon,
+  ShieldIcon,
+  SparkleIcon,
+  TrashIcon,
+} from "./icons";
+import {
+  Badge,
+  Button,
+  Dialog,
+  Field,
+  IconButton,
+  SectionHeader,
+  Stat,
+  Switch,
+  Toast,
+  cx,
+  useDismiss,
+  type ToastTone,
+} from "./ui";
 import {
   ApiError,
   SOURCE_KINDS,
+  createSource,
   deleteSource,
   getHotkey,
   isDesktop,
   listSources,
   openSource,
   patchSource,
-  createSource,
   reindexSource,
   setAnswerModel,
   setBatteryLow,
@@ -44,8 +84,66 @@ const MODEL_FALLBACK = [
   { key: "8B", label: "Qwen3-8B (quality)", size_gb: 0, present: false },
 ];
 
-function errText(e: unknown): string {
-  return e instanceof ApiError ? e.message : String(e);
+type SectionId = "sources" | "answer" | "indexing" | "shortcut" | "privacy" | "advanced";
+
+const SECTIONS: { id: SectionId; label: string; icon: ReactNode }[] = [
+  { id: "sources", label: "Sources", icon: <LayersIcon size={14} /> },
+  { id: "answer", label: "Answer model", icon: <SparkleIcon size={14} /> },
+  { id: "indexing", label: "Indexing", icon: <ActivityIcon size={14} /> },
+  { id: "shortcut", label: "Shortcut", icon: <CommandIcon size={14} /> },
+  { id: "privacy", label: "Privacy", icon: <ShieldIcon size={14} /> },
+  { id: "advanced", label: "Advanced", icon: <CpuIcon size={14} /> },
+];
+
+const KIND_LABEL: Record<string, string> = {
+  files: "Files",
+  pdf: "PDF",
+  email: "Email",
+  email_imap: "IMAP",
+  browser: "Browser",
+  chat: "Chat",
+  code: "Code",
+};
+
+function errText(error: unknown): string {
+  return error instanceof ApiError ? error.message : String(error);
+}
+
+function number(value: number | null | undefined): string {
+  return value == null ? "—" : value.toLocaleString();
+}
+
+function formatUptime(seconds: number | undefined): string {
+  if (seconds == null) return "—";
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ${Math.round(seconds % 60)}s`;
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+}
+
+function KindIcon({ kind }: { kind: string }) {
+  switch (kind) {
+    case "pdf":
+    case "files":
+      return <FileTextIcon size={13} />;
+    case "email":
+    case "email_imap":
+      return <MailIcon size={13} />;
+    case "browser":
+      return <GlobeIcon size={13} />;
+    case "chat":
+      return <ChatIcon size={13} />;
+    case "code":
+      return <CodeIcon size={13} />;
+    default:
+      return <FolderIcon size={13} />;
+  }
+}
+
+function workerTone(state: string | undefined): "positive" | "warning" | "neutral" {
+  if (state === "idle") return "positive";
+  if (state === "paused") return "warning";
+  return "neutral";
 }
 
 export default function Settings({
@@ -55,394 +153,785 @@ export default function Settings({
   status: Status | null;
   onRefreshStatus: () => void;
 }) {
+  const [section, setSection] = useState<SectionId>("sources");
+
   const [sources, setSources] = useState<Source[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   const [kind, setKind] = useState<string>("files");
   const [name, setName] = useState("");
   const [configText, setConfigText] = useState(
-    JSON.stringify(KIND_DEFAULTS.files, null, 2),
+    JSON.stringify(KIND_DEFAULTS.files, null, 2) ?? "{}",
   );
 
   const [hotkey, setHotkeyState] = useState<string | null>(null);
   const [hotkeyDraft, setHotkeyDraft] = useState("");
   const [hotkeyMsg, setHotkeyMsg] = useState<string | null>(null);
+  const [hotkeyTone, setHotkeyTone] = useState<"ok" | "error" | null>(null);
+  const [hotkeyBusy, setHotkeyBusy] = useState(false);
+
   const [batteryLow, setBatteryLowState] = useState(false);
+  const [batteryBusy, setBatteryBusy] = useState(false);
   const [batteryMsg, setBatteryMsg] = useState<string | null>(null);
+
   const [idleMinutes, setIdleMinutes] = useState("60");
+  const [idleBusy, setIdleBusy] = useState(false);
   const [idleMsg, setIdleMsg] = useState<string | null>(null);
+
+  const [forgetTarget, setForgetTarget] = useState<Source | null>(null);
+  const [notice, setNotice] = useState<{ message: string; tone: ToastTone } | null>(null);
+  const dismissNotice = useDismiss(setNotice);
+
   const desktop = isDesktop();
+  const idx = status?.index;
+  const model = status?.models.answer_llm;
+  const pending = idx?.jobs_pending ?? 0;
+  const pausedReason = status?.queue_paused_reason ?? null;
+
+  const notify = (message: string, tone: ToastTone = "positive") => {
+    setNotice({ message, tone });
+  };
 
   useEffect(() => {
     const call = getHotkey();
     if (!call) return;
     void call
-      .then((h) => {
-        setHotkeyState(h);
-        setHotkeyDraft(h);
+      .then((spec) => {
+        setHotkeyState(spec);
+        setHotkeyDraft(spec);
       })
-      .catch(() => undefined);
+      .catch((error) => {
+        setHotkeyMsg(`Couldn’t read the current shortcut: ${String(error)}`);
+        setHotkeyTone("error");
+      });
   }, []);
 
-  const applyHotkey = async () => {
-    setHotkeyMsg(null);
-    try {
-      const applied = await setHotkey(hotkeyDraft.trim());
-      setHotkeyState(applied);
-      setHotkeyMsg(`bound to ${applied}`);
-    } catch (e) {
-      setHotkeyMsg(errText(e));
-    }
-  };
+  useEffect(() => {
+    if (status?.battery_low != null) setBatteryLowState(status.battery_low);
+  }, [status?.battery_low]);
 
-  const toggleBattery = async () => {
-    setBatteryMsg(null);
-    try {
-      const next = !batteryLow;
-      const res = await setBatteryLow(next);
-      setBatteryLowState(res.battery_low);
-      setBatteryMsg(res.paused_reason ?? "running");
-    } catch (e) {
-      setBatteryMsg(errText(e));
+  useEffect(() => {
+    if (status?.idle_timeout_minutes != null) {
+      setIdleMinutes(String(status.idle_timeout_minutes));
     }
-  };
-
-  const applyIdle = async () => {
-    setIdleMsg(null);
-    try {
-      const mins = parseInt(idleMinutes, 10);
-      const res = await setIdleTimeout(mins);
-      setIdleMsg(`idle unload set to ${res.minutes} min`);
-    } catch (e) {
-      setIdleMsg(errText(e));
-    }
-  };
+  }, [status?.idle_timeout_minutes]);
 
   const reload = useCallback(async () => {
     try {
       setSources(await listSources());
-      setError(null);
-    } catch (e) {
-      setError(errText(e));
+    } catch {
+      // The app-level banner already reports connectivity failures.
     }
   }, []);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    if (section === "sources") void reload();
+  }, [section, reload]);
 
   const onKindChange = (next: string) => {
     setKind(next);
-    setConfigText(JSON.stringify(KIND_DEFAULTS[next] ?? {}, null, 2));
+    setConfigText(JSON.stringify(KIND_DEFAULTS[next] ?? {}, null, 2) ?? "{}");
+    setConfigError(null);
   };
 
   const addSource = async () => {
     setBusy(true);
+    setConfigError(null);
+    const sourceName = name.trim() || kind;
+    logger.log(logger.categories.action, "settings.source.add.begin", {
+      kind,
+      name: sourceName,
+    });
     try {
       const config = configText.trim() ? JSON.parse(configText) : {};
-      await createSource({ kind, name: name.trim() || kind, config });
+      await createSource({ kind, name: sourceName, config });
       setName("");
       await reload();
       onRefreshStatus();
-    } catch (e) {
-      setError(e instanceof SyntaxError ? "config is not valid JSON" : errText(e));
+      notify(`Added “${sourceName}”. Indexing will start shortly.`);
+      logger.log(logger.categories.action, "settings.source.add.end", { kind });
+    } catch (error) {
+      const message =
+        error instanceof SyntaxError ? "Config must be valid JSON." : errText(error);
+      setConfigError(message);
+      logger.error(logger.categories.action, "settings.source.add.error", { kind, message });
     } finally {
       setBusy(false);
     }
   };
 
-  const toggle = async (s: Source) => {
-    await patchSource(s.id, { enabled: !s.enabled });
-    await reload();
-    onRefreshStatus();
-  };
-
-  const reindex = async (s: Source) => {
-    await reindexSource(s.id);
-    onRefreshStatus();
-  };
-
-  const forget = async (s: Source) => {
-    if (!window.confirm(`Forget "${s.name}"? Every document, chunk, and vector is removed.`)) {
-      return;
+  const toggle = async (source: Source) => {
+    setBusyId(source.id);
+    logger.log(logger.categories.action, "settings.source.toggle", {
+      source_id: source.id,
+      enabled: !source.enabled,
+    });
+    try {
+      await patchSource(source.id, { enabled: !source.enabled });
+      await reload();
+      onRefreshStatus();
+    } catch (error) {
+      notify(errText(error), "danger");
+      logger.error(logger.categories.action, "settings.source.toggle.error", {
+        source_id: source.id,
+        message: errText(error),
+      });
+    } finally {
+      setBusyId(null);
     }
-    await deleteSource(s.id);
-    await reload();
-    onRefreshStatus();
+  };
+
+  const reindex = async (source: Source) => {
+    setBusyId(source.id);
+    logger.log(logger.categories.action, "settings.source.reindex", { source_id: source.id });
+    try {
+      await reindexSource(source.id);
+      onRefreshStatus();
+      notify(`Reindex queued for “${source.name}”.`);
+    } catch (error) {
+      notify(errText(error), "danger");
+      logger.error(logger.categories.action, "settings.source.reindex.error", {
+        source_id: source.id,
+        message: errText(error),
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const requestForget = (source: Source) => {
+    logger.log(logger.categories.action, "settings.source.forget.request", {
+      source_id: source.id,
+    });
+    setForgetTarget(source);
+  };
+
+  const cancelForget = () => {
+    if (forgetTarget) {
+      logger.log(logger.categories.action, "settings.source.forget.cancelled", {
+        source_id: forgetTarget.id,
+      });
+    }
+    setForgetTarget(null);
+  };
+
+  const confirmForget = async () => {
+    const source = forgetTarget;
+    if (!source) return;
+    setForgetTarget(null);
+    setBusyId(source.id);
+    logger.log(logger.categories.action, "settings.source.forget", { source_id: source.id });
+    try {
+      await deleteSource(source.id);
+      await reload();
+      onRefreshStatus();
+      notify(`Removed “${source.name}”.`);
+    } catch (error) {
+      notify(errText(error), "danger");
+      logger.error(logger.categories.action, "settings.source.forget.error", {
+        source_id: source.id,
+        message: errText(error),
+      });
+    } finally {
+      setBusyId(null);
+    }
   };
 
   const switchModel = async (key: string) => {
-    await setAnswerModel(key);
-    onRefreshStatus();
+    logger.log(logger.categories.action, "settings.model.switch", { key });
+    try {
+      await setAnswerModel(key);
+      onRefreshStatus();
+    } catch (error) {
+      notify(errText(error), "danger");
+      logger.error(logger.categories.action, "settings.model.switch.error", {
+        key,
+        message: errText(error),
+      });
+    }
   };
 
-  const idx = status?.index;
-  const model = status?.models.answer_llm;
+  const applyHotkey = async () => {
+    const spec = hotkeyDraft.trim();
+    if (!spec) return;
+    setHotkeyMsg(null);
+    setHotkeyTone(null);
+    setHotkeyBusy(true);
+    logger.log(logger.categories.action, "settings.hotkey.bind", { spec });
+    try {
+      const applied = await setHotkey(spec);
+      setHotkeyState(applied);
+      setHotkeyDraft(applied);
+      setHotkeyMsg(`Bound to ${applied}`);
+      setHotkeyTone("ok");
+      logger.log(logger.categories.action, "settings.hotkey.bound", { spec: applied });
+    } catch (error) {
+      setHotkeyMsg(errText(error));
+      setHotkeyTone("error");
+      logger.error(logger.categories.action, "settings.hotkey.error", {
+        spec,
+        message: errText(error),
+      });
+    } finally {
+      setHotkeyBusy(false);
+    }
+  };
 
-  return (
-    <div className="space-y-6">
-      {error && (
-        <p className="rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
-          {error}
-        </p>
-      )}
+  const toggleBattery = async (next: boolean) => {
+    setBatteryBusy(true);
+    setBatteryMsg(null);
+    logger.log(logger.categories.action, "settings.battery.toggle", { low: next });
+    try {
+      const response = await setBatteryLow(next);
+      setBatteryLowState(response.battery_low);
+      setBatteryMsg(
+        response.battery_low ? "Bulk indexing paused." : "Bulk indexing resumed.",
+      );
+      onRefreshStatus();
+    } catch (error) {
+      setBatteryMsg(errText(error));
+      logger.error(logger.categories.action, "settings.battery.error", {
+        message: errText(error),
+      });
+    } finally {
+      setBatteryBusy(false);
+    }
+  };
 
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          sources
-        </h2>
-        <ul className="divide-y divide-neutral-800/70">
-          {sources.length === 0 && (
-            <li className="px-3 py-3 text-sm text-neutral-500">no sources yet.</li>
-          )}
-          {sources.map((s) => (
-            <li key={s.id} className="flex items-center gap-3 px-3 py-2 text-sm">
-              <span className="w-16 shrink-0 rounded bg-neutral-800 px-1.5 py-0.5 text-center text-xs text-neutral-300">
-                {s.kind}
+  const applyIdle = async () => {
+    const minutes = parseInt(idleMinutes, 10);
+    if (!Number.isFinite(minutes) || minutes < 1) {
+      setIdleMsg("Enter at least 1 minute.");
+      return;
+    }
+    setIdleBusy(true);
+    setIdleMsg(null);
+    logger.log(logger.categories.action, "settings.idle.apply", { minutes });
+    try {
+      const response = await setIdleTimeout(minutes);
+      setIdleMsg(`Idle unload set to ${response.minutes} min.`);
+      onRefreshStatus();
+    } catch (error) {
+      setIdleMsg(errText(error));
+      logger.error(logger.categories.action, "settings.idle.error", {
+        message: errText(error),
+      });
+    } finally {
+      setIdleBusy(false);
+    }
+  };
+
+  const copyPath = async (value: string | undefined, label: string) => {
+    if (!value) return;
+    try {
+      if (!navigator.clipboard) throw new Error("clipboard unavailable");
+      await navigator.clipboard.writeText(value);
+      notify(`Copied ${label} path.`);
+    } catch {
+      notify("Couldn’t copy to the clipboard.", "danger");
+    }
+  };
+
+  const revealLogs = () => {
+    const dir = status?.logs?.dir;
+    if (!dir) return;
+    void openSource(`file://${encodeURI(dir)}`);
+  };
+
+  const openPrivacySettings = () => {
+    logger.log(logger.categories.action, "settings.privacy.open", {});
+    void openSource(
+      "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles",
+    );
+  };
+
+  const sourceList = (
+    <section className="panel">
+      {sources.length === 0 ? (
+        <div className="result-empty">
+          <FolderIcon size={20} />
+          <strong>No sources yet</strong>
+          <span>Add a folder below to start indexing.</span>
+        </div>
+      ) : (
+        <ul className="results-list">
+          {sources.map((source) => (
+            <li key={source.id} className="setting-row">
+              <span className={cx("kind-icon", !source.enabled && "opacity-50")}>
+                <KindIcon kind={source.kind} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-neutral-100">{s.name}</span>
-                <span className="block text-xs text-neutral-500">
-                  {s.documents} docs{s.errors > 0 ? ` · ${s.errors} errors` : ""}
-                  {s.last_sync_at ? ` · synced ${s.last_sync_at}` : ""}
+                <span className="flex items-center gap-2">
+                  <span className="result-title">{source.name}</span>
+                  {!source.enabled ? <Badge>Paused</Badge> : null}
+                  {source.errors > 0 ? (
+                    <Badge tone="warning">{source.errors} errors</Badge>
+                  ) : null}
+                </span>
+                <span className="source-meta block">
+                  {KIND_LABEL[source.kind] ?? source.kind} · {number(source.documents)} docs
+                  {source.last_sync_at ? ` · synced ${source.last_sync_at}` : ""}
                 </span>
               </span>
-              <button
-                type="button"
-                onClick={() => void toggle(s)}
-                className="rounded border border-neutral-700 px-2 py-0.5 text-xs text-neutral-300 hover:border-neutral-500"
-              >
-                {s.enabled ? "pause" : "enable"}
-              </button>
-              <button
-                type="button"
-                onClick={() => void reindex(s)}
-                className="rounded border border-neutral-700 px-2 py-0.5 text-xs text-neutral-300 hover:border-neutral-500"
-              >
-                reindex
-              </button>
-              <button
-                type="button"
-                onClick={() => void forget(s)}
-                className="rounded border border-red-900/70 px-2 py-0.5 text-xs text-red-300 hover:border-red-700"
-              >
-                forget
-              </button>
+              <span className="flex items-center gap-0.5">
+                <IconButton
+                  label={source.enabled ? `Pause ${source.name}` : `Enable ${source.name}`}
+                  size="sm"
+                  disabled={busyId === source.id}
+                  onClick={() => void toggle(source)}
+                >
+                  {source.enabled ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+                </IconButton>
+                <IconButton
+                  label={`Reindex ${source.name}`}
+                  size="sm"
+                  disabled={busyId === source.id}
+                  onClick={() => void reindex(source)}
+                >
+                  <RefreshIcon size={13} />
+                </IconButton>
+                <IconButton
+                  label={`Forget ${source.name}`}
+                  tone="danger"
+                  size="sm"
+                  disabled={busyId === source.id}
+                  onClick={() => requestForget(source)}
+                >
+                  <TrashIcon size={13} />
+                </IconButton>
+              </span>
             </li>
           ))}
         </ul>
-        <div className="space-y-2 border-t border-neutral-800 p-3">
-          <div className="flex gap-2">
-            <select
-              value={kind}
-              onChange={(e) => onKindChange(e.target.value)}
-              className="rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-sm text-neutral-200"
-            >
-              {SOURCE_KINDS.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="name"
-              className="flex-1 rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-sm text-neutral-200 placeholder:text-neutral-600"
+      )}
+    </section>
+  );
+
+  let pane: ReactNode;
+
+  if (section === "sources") {
+    pane = (
+      <>
+        <SectionHeader
+          title="Sources"
+          description="Folders and services StackSearch reads. Everything is indexed on this Mac."
+          action={<Badge>{sources.length} configured</Badge>}
+        />
+        {sourceList}
+        <section className="panel">
+          <div className="panel-head">
+            <span className="panel-title">
+              <PlusIcon size={12} /> Add a source
+            </span>
+            <span className="panel-note">indexed locally</span>
+          </div>
+          <div className="form">
+            <div className="form-row">
+              <Field label="Kind" htmlFor="source-kind">
+                <select
+                  id="source-kind"
+                  className="select"
+                  value={kind}
+                  onChange={(event) => onKindChange(event.target.value)}
+                >
+                  {SOURCE_KINDS.map((option) => (
+                    <option key={option} value={option}>
+                      {KIND_LABEL[option] ?? option}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Name" htmlFor="source-name" hint="optional">
+                <input
+                  id="source-name"
+                  className="input"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder={KIND_LABEL[kind] ?? kind}
+                />
+              </Field>
+            </div>
+            <Field label="Config (JSON)" htmlFor="source-config" hint="paths and excludes">
+              <textarea
+                id="source-config"
+                className="textarea"
+                value={configText}
+                onChange={(event) => setConfigText(event.target.value)}
+                rows={5}
+                spellCheck={false}
+              />
+            </Field>
+            {configError ? (
+              <p className="form-error" role="alert">
+                <AlertIcon size={12} />
+                {configError}
+              </p>
+            ) : null}
+            <div className="form-actions">
+              <span className="form-hint">
+                Secrets such as <span className="mono">.env</span> and private keys are excluded
+                by default.
+              </span>
+              <Button variant="primary" onClick={() => void addSource()} disabled={busy}>
+                {busy ? "Adding…" : "Add and index"}
+              </Button>
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  } else if (section === "answer") {
+    const options = status?.models.answer_llm_options ?? MODEL_FALLBACK;
+    pane = (
+      <>
+        <SectionHeader
+          title="Answer model"
+          description="The local model that writes grounded answers. Switching unloads the resident model; the next question loads the choice."
+        />
+        <section className="panel">
+          <div className="radio-list">
+            {options.map((option) => {
+              const active = model?.key === option.key;
+              return (
+                <label key={option.key} className="radio-row" data-checked={active}>
+                  <input
+                    type="radio"
+                    className="radio"
+                    name="answer-model"
+                    checked={active}
+                    onChange={() => void switchModel(option.key)}
+                  />
+                  <span className="radio-body">
+                    <span className="row-title">{option.label}</span>
+                    <span className="radio-meta block">
+                      {option.size_gb > 0 ? `${option.size_gb} GB resident · ` : ""}
+                      {option.present ? "downloaded" : "not downloaded"}
+                      {active
+                        ? status?.llm_server.running
+                          ? " · loaded"
+                          : " · idle"
+                        : ""}
+                    </span>
+                  </span>
+                  {active ? <Badge tone="accent">Selected</Badge> : null}
+                </label>
+              );
+            })}
+          </div>
+        </section>
+        <p className="inline-note">
+          <SparkleIcon size={12} />
+          Answers are extractive and cited. If model weights are missing, search still works.
+        </p>
+      </>
+    );
+  } else if (section === "indexing") {
+    pane = (
+      <>
+        <SectionHeader
+          title="Indexing"
+          description="What StackSearch has read, and how it behaves under load."
+          action={
+            <Badge tone={pending > 0 ? "accent" : "positive"}>
+              {pending > 0 ? `${pending} queued` : "up to date"}
+            </Badge>
+          }
+        />
+        <div className="stat-grid">
+          <Stat label="Documents" value={number(idx?.documents)} />
+          <Stat label="Chunks" value={number(idx?.chunks)} />
+          <Stat label="Vectors" value={number(idx?.vectors)} />
+          <Stat
+            label="Queued"
+            value={number(idx?.jobs_pending)}
+            hint={status?.worker_state ? `worker ${status.worker_state}` : undefined}
+          />
+        </div>
+        <section className="panel">
+          <div className="panel-head">
+            <span className="panel-title">Behaviour</span>
+            <Badge tone={workerTone(status?.worker_state)}>
+              {status?.worker_state ?? "unknown"}
+            </Badge>
+          </div>
+          <div className="setting-row">
+            <span className="min-w-0 flex-1">
+              <span className="row-title block">Pause bulk indexing on battery</span>
+              <span className="row-desc block">
+                Live changes still index. Bulk scans wait until the Mac is on AC power.
+              </span>
+            </span>
+            <Switch
+              checked={batteryLow}
+              onChange={(next) => void toggleBattery(next)}
+              label="Pause bulk indexing on battery"
+              disabled={batteryBusy}
             />
           </div>
-          <textarea
-            value={configText}
-            onChange={(e) => setConfigText(e.target.value)}
-            rows={3}
-            spellCheck={false}
-            className="w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 font-mono text-xs text-neutral-300"
-          />
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void addSource()}
-            className="rounded bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-500 disabled:opacity-50"
-          >
-            add source
-          </button>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          answer model
-        </h2>
-        <div className="space-y-1 p-3">
-          {(status?.models.answer_llm_options ?? MODEL_FALLBACK).map((m) => (
-            <label key={m.key} className="flex items-center gap-2 text-sm text-neutral-200">
-              <input
-                type="radio"
-                name="answer-model"
-                checked={model?.key === m.key}
-                onChange={() => void switchModel(m.key)}
-                className="accent-sky-500"
-              />
-              {m.label}
-              <span className="text-xs text-neutral-500">
-                {m.size_gb > 0 ? `· ${m.size_gb} GB resident` : ""}
-                {m.present ? "" : " · not downloaded"}
-                {model?.key === m.key
-                  ? status?.llm_server.running
-                    ? " · loaded"
-                    : " · idle"
-                  : ""}
+          {batteryMsg || pausedReason ? (
+            <p className="inline-note px-3 pb-2">
+              <AlertIcon size={11} />
+              {batteryMsg ?? `Queue paused: ${pausedReason}`}
+            </p>
+          ) : null}
+          <div className="setting-row">
+            <span className="min-w-0 flex-1">
+              <span className="row-title block">Unload the answer model when idle</span>
+              <span className="row-desc block">
+                Frees roughly 3 GB after a period without questions.
               </span>
-            </label>
-          ))}
-          <p className="pt-1 text-xs text-neutral-500">
-            switching unloads the resident model; the next question loads the choice.
+            </span>
+            <input
+              className="input input-min"
+              inputMode="numeric"
+              value={idleMinutes}
+              onChange={(event) => setIdleMinutes(event.target.value)}
+              aria-label="Idle unload minutes"
+            />
+            <span className="unit">min</span>
+            <Button size="sm" onClick={() => void applyIdle()} disabled={idleBusy}>
+              Apply
+            </Button>
+          </div>
+          {idleMsg ? (
+            <p className="inline-note px-3 pb-2">
+              <CheckIcon size={11} />
+              {idleMsg}
+            </p>
+          ) : null}
+        </section>
+        {idx?.embedding_model ? (
+          <p className="inline-note">
+            <DatabaseIcon size={12} /> Embedding model: {idx.embedding_model}
+            {idx.embedding_dim ? ` · ${idx.embedding_dim} dimensions` : ""}
           </p>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          shortcut
-        </h2>
-        <div className="space-y-2 p-3">
-          {desktop ? (
-            <>
+        ) : null}
+      </>
+    );
+  } else if (section === "shortcut") {
+    pane = (
+      <>
+        <SectionHeader
+          title="Global shortcut"
+          description="Summon StackSearch from anywhere. The binding is saved for the next launch."
+        />
+        <section className="panel">
+          <div className="form">
+            <Field label="Key combination" hint={desktop ? undefined : "desktop app only"}>
               <div className="flex gap-2">
                 <input
+                  className="input mono"
                   value={hotkeyDraft}
-                  onChange={(e) => setHotkeyDraft(e.target.value)}
+                  onChange={(event) => setHotkeyDraft(event.target.value)}
                   placeholder="Cmd+Shift+Space"
-                  className="flex-1 rounded border border-neutral-700 bg-neutral-950 px-2 py-1 font-mono text-sm text-neutral-200"
+                  aria-label="Global shortcut"
+                  disabled={!desktop}
+                  spellCheck={false}
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
                   onClick={() => void applyHotkey()}
-                  className="rounded bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-500"
+                  disabled={!desktop || hotkeyBusy || !hotkeyDraft.trim()}
                 >
-                  bind
-                </button>
+                  {hotkeyBusy ? "Binding…" : "Bind"}
+                </Button>
               </div>
-              <p className="text-xs text-neutral-500">
-                {hotkeyMsg ?? `currently ${hotkey ?? "…"}`}
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-neutral-500">
-              the global shortcut is only available in the desktop app.
+            </Field>
+            <p
+              className={cx(
+                "inline-note",
+                hotkeyTone === "ok" && "inline-note-ok",
+                hotkeyTone === "error" && "inline-note-warn",
+              )}
+            >
+              {hotkeyMsg ??
+                (hotkey ? `Currently ${hotkey}` : "No shortcut loaded.")}
+              {!desktop && " Only available in the desktop app."}
             </p>
-          )}
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          indexing
-        </h2>
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-1 p-3 text-sm">
-          <Row label="documents" value={idx?.documents} />
-          <Row label="chunks" value={idx?.chunks} />
-          <Row label="vectors" value={idx?.vectors} />
-          <Row label="queued" value={idx?.jobs_pending} />
-          <Row label="worker" value={status?.worker_state} />
-          <Row label="paused" value={status?.queue_paused_reason ?? "no"} />
-          <Row label="embedding model" value={idx?.embedding_model ?? undefined} />
-        </dl>
-      </section>
-
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          access
-        </h2>
-        <div className="space-y-2 p-3 text-sm text-neutral-300">
-          <p>
-            Mail, Safari, and Messages live behind Full Disk Access. If those sources
-            index nothing, grant it to StackSearch.
-          </p>
-          <button
-            type="button"
-            onClick={() =>
-              void openSource(
-                "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles",
-              )
-            }
-            className="rounded border border-neutral-700 px-2 py-1 text-sm text-neutral-200 hover:border-neutral-500"
-          >
-            open privacy settings
-          </button>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          thermal &amp; memory
-        </h2>
-        <div className="space-y-2 p-3 text-sm text-neutral-300">
-          <p>
-            Pausing on battery keeps bulk indexing from running while the machine is
-            unplugged; live changes still index. Idle unload (default 60 min) frees the
-            answer model's RAM when unused.
-          </p>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => void toggleBattery()}
-              className="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-200 hover:border-neutral-500"
-            >
-              {batteryLow ? "resume indexing" : "simulate battery low"}
-            </button>
-            <span className="text-xs text-neutral-500">
-              {batteryMsg ?? (batteryLow ? "battery pause active" : "on AC power")}
-            </span>
+            <p className="form-hint">
+              If binding fails, macOS may already reserve the combination or be blocking the
+              shortcut. Use the menu-bar item instead, or allow Input Monitoring in System
+              Settings.
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <input
-              value={idleMinutes}
-              onChange={(e) => setIdleMinutes(e.target.value)}
-              className="w-20 rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-sm text-neutral-200"
-            />
-            <button
-              type="button"
-              onClick={() => void applyIdle()}
-              className="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-200 hover:border-neutral-500"
-            >
-              set idle unload (min)
-            </button>
-            <span className="text-xs text-neutral-500">{idleMsg ?? "default 60"}</span>
+        </section>
+      </>
+    );
+  } else if (section === "privacy") {
+    pane = (
+      <>
+        <SectionHeader
+          title="Privacy"
+          description="StackSearch is local-first: your index, answers, and model run on this Mac."
+        />
+        <section className="panel">
+          <div className="callout">
+            <LockIcon size={15} />
+            <div>
+              <strong>Nothing is uploaded.</strong> Files are read in place, embedded locally,
+              and the answer model runs on-device. The only network traffic is the loopback
+              connection between this window and the local service.
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+        <section className="panel">
+          <div className="panel-head">
+            <span className="panel-title">Full Disk Access</span>
+          </div>
+          <div className="callout">
+            <ShieldIcon size={15} />
+            <div>
+              Mail, Safari, and Messages live behind macOS privacy protection. If those sources
+              index nothing, grant StackSearch Full Disk Access and reindex.
+            </div>
+          </div>
+          <div className="panel-actions">
+            <Button onClick={openPrivacySettings} disabled={!desktop}>
+              Open Privacy settings
+              <ExternalIcon size={12} />
+            </Button>
+          </div>
+        </section>
+        <p className="inline-note">
+          <AlertIcon size={11} />
+          Secret-looking files (.env, private keys, certificates) are excluded by default.
+        </p>
+      </>
+    );
+  } else {
+    const logs = status?.logs;
+    const uptime = status ? formatUptime(status.uptime_s) : undefined;
+    pane = (
+      <>
+        <SectionHeader
+          title="Advanced"
+          description="Runtime details and the categorized debug logs used to investigate problems."
+          action={
+            <Button size="sm" onClick={revealLogs} disabled={!logs?.dir}>
+              <FolderIcon size={13} />
+              Reveal logs
+            </Button>
+          }
+        />
+        <section className="panel">
+          <div className="panel-head">
+            <span className="panel-title">Runtime</span>
+          </div>
+          <dl className="kv">
+            <dt>Version</dt>
+            <dd>{status?.version ?? "—"}</dd>
+            <dt>Uptime</dt>
+            <dd>{uptime ?? "—"}</dd>
+            <dt>Index path</dt>
+            <dd>{status?.index_path ?? "—"}</dd>
+            <dt>Schema</dt>
+            <dd>{idx?.schema_version ?? "—"}</dd>
+            <dt>Vectors extension</dt>
+            <dd>{idx?.vec_version ?? "—"}</dd>
+            <dt>Embedding dim</dt>
+            <dd>{idx?.embedding_dim ?? "—"}</dd>
+            <dt>Answer server</dt>
+            <dd>{status?.llm_server.running ? "running" : "stopped"}</dd>
+            <dt>Event subscribers</dt>
+            <dd>{status?.events_subscribers ?? "—"}</dd>
+          </dl>
+          {status?.index_error ? (
+            <p className="form-error px-3 pb-2" role="alert">
+              <AlertIcon size={12} />
+              {status.index_error}
+            </p>
+          ) : null}
+        </section>
+        <section className="panel">
+          <div className="panel-head">
+            <span className="panel-title">Debug logs</span>
+            <span className="panel-note">one JSON record per line</span>
+          </div>
+          {[
+            { label: "core", value: logs?.core },
+            { label: "host", value: logs?.host },
+            { label: "crash", value: logs?.faulthandler },
+          ].map((entry) => (
+            <div key={entry.label} className="log-path">
+              <span className="log-path-label">{entry.label}</span>
+              <span className="log-path-value" title={entry.value}>
+                {entry.value ?? "—"}
+              </span>
+              <IconButton
+                label={`Copy ${entry.label} log path`}
+                size="sm"
+                disabled={!entry.value}
+                onClick={() => void copyPath(entry.value, entry.label)}
+              >
+                <CopyIcon size={12} />
+              </IconButton>
+            </div>
+          ))}
+          <div className="panel-foot">
+            Filter by category, for example{" "}
+            <code className="mono">rg &apos;&quot;category&quot;:&quot;ui.click&quot;&apos;</code>
+          </div>
+        </section>
+      </>
+    );
+  }
 
-      <section className="rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <h2 className="border-b border-neutral-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          diagnostics
-        </h2>
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-1 p-3 text-sm">
-          <Row label="version" value={status?.version} />
-          <Row label="uptime" value={status ? `${Math.round(status.uptime_s)}s` : undefined} />
-          <Row label="index path" value={status?.index_path} />
-          <Row label="schema" value={idx?.schema_version ?? undefined} />
-          <Row label="vectors ext" value={idx?.vec_version ?? undefined} />
-          <Row label="embedding dim" value={idx?.embedding_dim ?? undefined} />
-          <Row label="llm server" value={status?.llm_server.running ? "running" : "stopped"} />
-          <Row label="events" value={status?.events_subscribers} />
-        </dl>
-        {status?.index_error && (
-          <p className="border-t border-neutral-800 px-3 py-2 text-xs text-red-300">
-            {status.index_error}
-          </p>
-        )}
-      </section>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string | number | undefined | null }) {
   return (
-    <>
-      <dt className="text-neutral-500">{label}</dt>
-      <dd className="truncate text-neutral-200">{value ?? "—"}</dd>
-    </>
+    <div className="ss-settings">
+      <nav className="ss-settings-nav" aria-label="Settings sections">
+        <div className="settings-nav-label">Settings</div>
+        {SECTIONS.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            className="settings-nav-item"
+            aria-current={section === entry.id ? "page" : undefined}
+            onClick={() => {
+              setSection(entry.id);
+              logger.log(logger.categories.nav, "settings.section", { section: entry.id });
+            }}
+          >
+            {entry.icon}
+            <span>{entry.label}</span>
+            {entry.id === "sources" && sources.length > 0 ? (
+              <span className="settings-nav-badge">{sources.length}</span>
+            ) : null}
+          </button>
+        ))}
+      </nav>
+
+      <div className="ss-settings-body">
+        <div className="settings-pane">{pane}</div>
+      </div>
+
+      <Dialog
+        open={forgetTarget !== null}
+        onClose={cancelForget}
+        title={forgetTarget ? `Forget “${forgetTarget.name}”?` : "Forget source"}
+        footer={
+          <>
+            <Button data-autofocus onClick={cancelForget}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={() => void confirmForget()}>
+              <TrashIcon size={13} />
+              Forget source
+            </Button>
+          </>
+        }
+      >
+        <p>
+          This removes {number(forgetTarget?.documents)} documents and their vectors from the
+          index. Your files on disk are not deleted.
+        </p>
+        <p>This cannot be undone.</p>
+      </Dialog>
+
+      {notice ? (
+        <Toast message={notice.message} tone={notice.tone} onDismiss={dismissNotice} />
+      ) : null}
+    </div>
   );
 }

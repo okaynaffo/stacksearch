@@ -6,7 +6,19 @@
  * owns selection so Tab can switch focus between this and the answer panel.
  */
 
+import { useEffect, useRef } from "react";
 import { openSource, type SearchResult, type SearchResponse } from "./api";
+import { SearchOffIcon } from "./icons";
+
+const KIND_LABEL: Record<string, string> = {
+  files: "file",
+  pdf: "pdf",
+  email: "email",
+  email_imap: "imap",
+  browser: "web",
+  chat: "chat",
+  code: "code",
+};
 
 export default function ResultsList({
   results,
@@ -19,45 +31,56 @@ export default function ResultsList({
   onSelect: (index: number) => void;
   onOpen: (result: SearchResult) => void;
 }) {
+  const listRef = useRef<HTMLUListElement | null>(null);
+
+  useEffect(() => {
+    const node = listRef.current?.querySelector<HTMLElement>(
+      `[data-result-index="${selected}"]`,
+    );
+    node?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
+
+  const count = results.results.length;
+
   return (
-    <section
-      aria-label="results"
-      className="rounded-xl border border-neutral-800 bg-neutral-900/40"
-    >
-      <header className="flex items-baseline justify-between border-b border-neutral-800 px-3 py-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          results
-        </h2>
-        <span className="text-xs text-neutral-600">
-          {results.results.length} in {results.latency_ms} ms
+    <section aria-label="results" className="panel">
+      <div className="panel-head">
+        <span className="panel-title">Results</span>
+        <span className="panel-note">
+          {count} {count === 1 ? "match" : "matches"} · {results.latency_ms} ms
         </span>
-      </header>
-      {results.results.length === 0 ? (
-        <p className="px-3 py-4 text-sm text-neutral-500">nothing found.</p>
+      </div>
+
+      {count === 0 ? (
+        <div className="result-empty">
+          <SearchOffIcon size={20} />
+          <strong>No matches</strong>
+          <span>Try a shorter query, or clear a filter.</span>
+        </div>
       ) : (
-        <ul className="divide-y divide-neutral-800/70">
+        <ul ref={listRef} className="results-list">
           {results.results.map((r, i) => (
             <li key={r.chunk_id}>
               <button
                 type="button"
+                data-result-index={i}
+                aria-selected={i === selected}
                 onMouseEnter={() => onSelect(i)}
                 onFocus={() => onSelect(i)}
                 onClick={() => onOpen(r)}
-                className={
-                  "block w-full px-3 py-2 text-left transition-colors " +
-                  (i === selected ? "bg-neutral-800/80" : "hover:bg-neutral-800/40")
-                }
+                className="result-row"
               >
-                <p className="flex items-baseline gap-2 text-sm text-neutral-100">
-                  <span className="truncate">{r.title ?? r.uri}</span>
-                  <span className="shrink-0 text-xs font-normal text-neutral-500">
-                    {r.source_kind}
-                    {r.date ? ` · ${r.date}` : ""}
-                    {r.author ? ` · ${r.author}` : ""}
+                <span className="flex items-baseline gap-2">
+                  <span className="result-title">{r.title ?? r.uri}</span>
+                  <span className="result-meta shrink-0">
+                    <span className="kind">{KIND_LABEL[r.source_kind] ?? r.source_kind}</span>
+                    {r.date ? <span>{r.date}</span> : null}
+                    {r.author ? <span>· {r.author}</span> : null}
                   </span>
-                </p>
-                <p
-                  className="mt-0.5 line-clamp-2 text-xs text-neutral-400 [&_mark]:rounded [&_mark]:bg-amber-500/20 [&_mark]:px-0.5 [&_mark]:text-amber-200"
+                </span>
+                <span
+                  className="result-snippet"
+                  // Snippet markup is produced by the FTS5 highlighter, not user HTML.
                   dangerouslySetInnerHTML={{ __html: r.snippet }}
                 />
               </button>
@@ -65,8 +88,9 @@ export default function ResultsList({
           ))}
         </ul>
       )}
+
       {results.warnings?.map((w, i) => (
-        <p key={i} className="border-t border-neutral-800 px-3 py-1 text-xs text-neutral-500">
+        <p key={i} className="result-warning">
           {w}
         </p>
       ))}

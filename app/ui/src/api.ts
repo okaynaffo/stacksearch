@@ -6,6 +6,8 @@
  * dev flow — and is read from the URL once so a refresh keeps working.
  */
 
+import * as logger from "./logger";
+
 export type EmbeddingInfo = {
   key: string;
   id: string;
@@ -57,7 +59,10 @@ export type Status = {
   };
   llm_server: { running: boolean; pid?: number | null; model?: string | null; restarts?: number };
   queue: number;
+  logs?: { dir: string; core: string; host: string; faulthandler: string };
   queue_paused_reason?: string | null;
+  battery_low?: boolean;
+  idle_timeout_minutes?: number | null;
   worker_state?: string;
   events_subscribers: number;
 };
@@ -66,30 +71,52 @@ export type Status = {
  * Resolve the API origin at runtime.
  *
  * The same bundle runs in a browser during Phases 1-5 and inside the Tauri webview in
- * Phase 6, so the origin cannot be baked in at build time. Relative URLs work in both
- * cases because in the shipped app the UI is served by the core service itself.
+ * Phase 6, so the origin cannot be baked in at build time.
+ *
+ * * Normal host: the page is already served by the core service (browser proxy or the
+ *   Tauri External-URL webview), so a relative URL hits the right place.
+ * * Bundled fallback (the host's failed-start page): the page origin is Tauri's asset
+ *   scheme, not the service, so the host injects `__STACKSEARCH_API_BASE__` and we use
+ *   that absolute origin instead.
  */
-const API_BASE = "";
+function apiBase(): string {
+  const injected = (window as unknown as { __STACKSEARCH_API_BASE__?: string })
+    .__STACKSEARCH_API_BASE__;
+  return injected ?? "";
+}
 
 let cachedToken: string | null = null;
+let cachedStartupError: string | null = null;
 
-/** Read the token from `?token=` once and remember it. */
+/** Read the token from the injected global or `?token=`, once, and remember it. */
 export function initToken(): string | null {
   if (cachedToken) return cachedToken;
-  const fromQuery = new URLSearchParams(window.location.search).get("token");
+  const params = new URLSearchParams(window.location.search);
+  const injectedGlobal = window as unknown as {
+    __STACKSEARCH_TOKEN__?: string;
+    __STACKSEARCH_STARTUP_ERROR__?: string;
+  };
+  // The Rust host sets this when the core service failed to start, so the UI can show
+  // the real reason instead of a blank window or 401 banners from a foreign service.
+  cachedStartupError =
+    params.get("startup_error") ?? (injectedGlobal.__STACKSEARCH_STARTUP_ERROR__ || null);
+  const fromQuery = params.get("token");
   if (fromQuery) {
     cachedToken = fromQuery;
     return cachedToken;
   }
   // Tauri's Rust side injects the token on the window object.
-  const injected = (window as unknown as { __STACKSEARCH_TOKEN__?: string })
-    .__STACKSEARCH_TOKEN__;
-  cachedToken = injected ?? null;
+  cachedToken = injectedGlobal.__STACKSEARCH_TOKEN__ ?? null;
   return cachedToken;
 }
 
 export function getToken(): string | null {
   return cachedToken ?? initToken();
+}
+
+/** The host-reported startup failure, or `null` when the service came up normally. */
+export function getStartupError(): string | null {
+  return cachedStartupError ?? new URLSearchParams(window.location.search).get("startup_error");
 }
 
 export class ApiError extends Error {
@@ -108,7 +135,33 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (token) headers.set("X-Local-Token", token);
   if (init.body) headers.set("Content-Type", "application/json");
 
-  const resp = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  const method = init.method ?? "GET";
+  // Poll paths are logged at DEBUG so they can be filtered out of a crash timeline
+  // without being dropped entirely.
+  const pollPath = path === "/status" || path === "/health";
+  const started = performance.now();
+  const emit = pollPath ? logger.debug : logger.log;
+  emit(logger.categories.api, "request", { method, path, body: init.body ?? undefined });
+
+  let resp: Response;
+  try {
+    resp = await fetch(`${apiBase()}${path}`, { ...init, headers });
+  } catch (e) {
+    logger.error(logger.categories.api, "network-error", {
+      method,
+      path,
+      duration_ms: Math.round(performance.now() - started),
+      message: e instanceof Error ? e.message : String(e),
+    });
+    throw e;
+  }
+
+  emit(logger.categories.api, "response", {
+    method,
+    path,
+    status: resp.status,
+    duration_ms: Math.round(performance.now() - started),
+  });
 
   if (resp.status === 401) {
     throw new ApiError(
@@ -219,17 +272,26 @@ export function postAnswer(
   headers.set("Content-Type", "application/json");
 
   const ctrl = new AbortController();
+  let frames = 0;
+  const started = performance.now();
+  logger.log(logger.categories.action, "answer.begin", { query, filters });
   (async () => {
     let resp: Response;
     try {
-      resp = await fetch(`${API_BASE}/answer`, {
+      resp = await fetch(`${apiBase()}/answer`, {
         method: "POST",
         headers,
         body: JSON.stringify({ query, filters }),
         signal: ctrl.signal,
       });
     } catch (e) {
-      if ((e as Error).name !== "AbortError") cb.onError(String(e));
+      if ((e as Error).name !== "AbortError") {
+        logger.error(logger.categories.action, "answer.fetch-error", {
+          query,
+          message: String(e),
+        });
+        cb.onError(String(e));
+      }
       return;
     }
     if (resp.status === 401) {
@@ -249,7 +311,12 @@ export function postAnswer(
     const handleFrame = (event: string, raw: string) => {
       try {
         const data = JSON.parse(raw) as Record<string, unknown>;
+        frames += 1;
         if (event === "sources") {
+          logger.log(logger.categories.action, "answer.sources", {
+            query,
+            count: ((data.sources as unknown[]) ?? []).length,
+          });
           cb.onSources(
             (data.sources as AnswerSource[]) ?? [],
             (data.warnings as string[]) ?? [],
@@ -257,8 +324,19 @@ export function postAnswer(
         } else if (event === "delta") {
           cb.onDelta((data.text as string) ?? "");
         } else if (event === "done") {
+          logger.log(logger.categories.action, "answer.done", {
+            query,
+            frames,
+            duration_ms: Math.round(performance.now() - started),
+            grounded: data.grounded,
+            citations: data.citations,
+          });
           cb.onDone(data as unknown as AnswerDone);
         } else if (event === "error") {
+          logger.error(logger.categories.action, "answer.error", {
+            query,
+            message: data.error,
+          });
           cb.onError((data.error as string) ?? "answer stream failed");
         }
       } catch {
@@ -285,7 +363,14 @@ export function postAnswer(
         }
       }
     } catch (e) {
-      if ((e as Error).name !== "AbortError") cb.onError(String(e));
+      if ((e as Error).name !== "AbortError") {
+        logger.error(logger.categories.action, "answer.read-error", {
+          query,
+          frames,
+          message: String(e),
+        });
+        cb.onError(String(e));
+      }
     }
   })();
   return () => ctrl.abort();
@@ -304,8 +389,8 @@ export function subscribeEvents(
 ): () => void {
   const token = getToken();
   const url = token
-    ? `${API_BASE}/events?token=${encodeURIComponent(token)}`
-    : `${API_BASE}/events`;
+    ? `${apiBase()}/events?token=${encodeURIComponent(token)}`
+    : `${apiBase()}/events`;
 
   const source = new EventSource(url);
   const handler = (message: MessageEvent) => {
@@ -460,7 +545,14 @@ function tauriInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>
 
 /** True when the page is running inside the desktop shell rather than a browser. */
 export function isDesktop(): boolean {
-  return tauriInvoke("__noop__") !== null;
+  // Probe the injected Tauri bridge directly. The old implementation invoked a fake
+  // command and treated a returned promise as proof — but Tauri v2 rejects unregistered
+  // commands ("not allowed by ACL"), and that rejected promise was never caught, so
+  // opening Settings (the only caller) blanked the window via the global error handler.
+  return (
+    typeof (window as unknown as { __TAURI_INTERNALS__?: unknown })
+      .__TAURI_INTERNALS__ !== "undefined"
+  );
 }
 
 export function getHotkey(): Promise<string> | null {
