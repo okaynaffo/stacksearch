@@ -70,7 +70,10 @@ class WatchManager:
             if root in seen_roots or not Path(root).is_dir():
                 continue
             seen_roots.add(root)
-            observer.schedule(_RelayHandler(self._on_fs_event, root), root, recursive=True)
+            try:
+                observer.schedule(_RelayHandler(self._on_fs_event, root), root, recursive=True)
+            except Exception:  # noqa: BLE001 — one bad root must not drop the rest
+                continue
         self._observer = observer
         observer.start()
         self._flush_thread = threading.Thread(
