@@ -53,6 +53,22 @@ def test_parse_no_date_returns_none():
     assert parse_date_range("order ID 48213 confirmed", datetime(2026, 1, 1)) is None
 
 
+def test_bare_month_is_not_a_date_filter():
+    # "November" / "November 3" are dates mentioned in content (the internship
+    # note, the offer email), not a request to filter by document date. Treating
+    # them as a filter excludes every undated file, so they must stay text.
+    assert parse_date_range("November", datetime(2026, 10, 19)) is None
+    assert parse_date_range("November 3", datetime(2026, 10, 19)) is None
+    assert parse_date_range("When do I start my internship?", datetime(2026, 10, 19)) is None
+
+
+def test_in_month_without_year_is_a_date_filter():
+    assert parse_date_range("notes in March", datetime(2026, 1, 1)) == (
+        "2026-03-01",
+        "2026-03-31",
+    )
+
+
 def test_parse_keeps_quoted_phrases():
     parsed = parse_query('"order ID 48213" in my notes')
     assert parsed.exact_phrases == ('"order ID 48213"',)

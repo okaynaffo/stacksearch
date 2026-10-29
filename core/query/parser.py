@@ -115,12 +115,20 @@ def parse_date_range(text: str, now: datetime | None = None) -> tuple[str, str] 
         start = (now - timedelta(days=30)).date().isoformat()
         return start, now.date().isoformat()
 
-    # "in March 2025" / "in March" — month range, current year when bare.
-    for i, name in enumerate(_MONTHS, start=1):
-        if name in lowered:
-            year_match = re.search(r"\b(19|20)\d{2}\b", text)
-            year = int(year_match.group(0)) if year_match else now.year
-            return _month_range(year, i)
+    # A month becomes a date filter only when it is explicitly scoped. PLAN.md §7.1
+    # names "in March" and "2025" as the examples; a bare "November" or "November 3"
+    # is far more often a date *mentioned in the content* (the internship note, the
+    # offer email) than a request to filter by document date. Treating it as a filter
+    # silently excludes every undated file, which is why "November 3" returned nothing
+    # in the shipped corpus.
+    month_alt = "|".join(_MONTHS)
+    month_year = re.search(rf"\b(?:in\s+)?({month_alt})\s+(\d{{4}})\b", text, re.IGNORECASE)
+    if month_year:
+        month_index = _MONTHS.index(month_year.group(1).lower()) + 1
+        return _month_range(int(month_year.group(2)), month_index)
+    month_only = re.search(rf"\bin\s+({month_alt})\b", text, re.IGNORECASE)
+    if month_only:
+        return _month_range(now.year, _MONTHS.index(month_only.group(1).lower()) + 1)
 
     # Explicit ISO-ish dates: 2025-03-14, 2025-03, 2025.
     iso = re.search(r"\b((?:19|20)\d{2})(?:-(\d{2})(?:-(\d{2}))?)?\b", text)
@@ -146,13 +154,10 @@ def parse_date_range(text: str, now: datetime | None = None) -> tuple[str, str] 
         found = search_dates(text, settings={"PREFER_DATES_FROM": "past"})
         if found:
             substr = found[0][0].lower()
-            weekdays = ("monday", "tuesday", "wednesday", "thursday", "friday",
-                        "saturday", "sunday")
-            if (
-                re.search(r"\d", substr)
-                or any(m in substr for m in _MONTHS)
-                or any(w in substr for w in weekdays)
-            ):
+            # Require the matched text itself to carry a year. A content date like
+            # "November 3" (no year) must stay a text search, not become a
+            # single-day filter that hides every undated document.
+            if re.search(r"\b(19|20)\d{2}\b", substr):
                 day = found[0][1].date().isoformat()
                 return day, day
     except Exception:  # noqa: BLE001 — date parsing must never break search
