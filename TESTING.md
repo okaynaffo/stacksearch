@@ -18,25 +18,34 @@ It contains notes, an invoice, a Python file, a chat log, an email, and a PDF. Y
 
 ## Step 1 — Open the app
 
-1. Open **StackSearch** from your Applications folder (or the Dock).
+1. Open **StackSearch** from your Applications folder (or click it in the Dock).
 2. A small search bar window appears (it floats on top of other windows).
-3. If nothing appears, press the keyboard shortcut: **Cmd + Shift + Space**.
+3. If the window ever disappears, click the menu-bar icon (a small magnifying glass in the
+   top-right menu bar) → **Show / Hide** to bring it back.
 
-> If the shortcut does nothing, another app may be using it. Open Settings (top right) → Shortcut, and pick a different one (for example `Cmd + Shift + J`), then click **bind**.
+> The keyboard shortcut **Cmd + Shift + Space** hides and shows the window. On some Macs
+> macOS blocks this shortcut (it needs "Input Monitoring" permission); if it doesn't work,
+> use the menu-bar icon instead. You can also change it in Settings → Shortcut.
 
 ## Step 2 — Add your test folder as a "source"
 
-A "source" is just a folder the app should read.
+A "source" is just a folder the app should read. The app reads different file types with
+different "kinds", so you will add the **same folder four times**, once per kind. This is
+normal — it is how you tell the app to look at notes, PDFs, code, and mail.
 
 1. Click **settings** (top right of the window).
-2. In the **sources** section, set:
-   - **kind**: `files`
-   - **name**: `Test Files`
-   - **config**: paste this exactly:
-     ```json
-     { "paths": ["~/Documents/StackSearchTest"], "exclude": [".git", "node_modules"] }
-     ```
-3. Click **add source**.
+2. Add these four sources one at a time. For each row: pick the **kind**, type the **name**,
+   paste the **config** exactly, then click **add source**.
+
+   | kind | name | config |
+   |---|---|---|
+   | `files` | Test Files | `{ "paths": ["~/Documents/StackSearchTest"] }` |
+   | `pdf` | Test PDFs | `{ "paths": ["~/Documents/StackSearchTest"] }` |
+   | `code` | Test Code | `{ "paths": ["~/Documents/StackSearchTest"] }` |
+   | `email` | Test Email | `{ "paths": ["~/Documents/StackSearchTest"] }` |
+
+   (`files` reads notes and text — `.md`, `.txt`, `.docx`; `pdf` reads PDFs; `code` reads
+   source files like `.py`; `email` reads `.eml`/`.emlx`/`.mbox` files.)
 
 ### What is "reindexing"?
 
@@ -102,5 +111,3 @@ Hover over a citation number (like [1]) to see the exact passage. Click it to op
 - Any crashes, blank screens, or confusing messages?
 
 Thank you for testing!
-EOF
-echo "written"
