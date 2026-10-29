@@ -34,6 +34,12 @@ tauri-plugin-opener = "2.7"
 # with the LLM (PLAN.md §2.1).
 ureq = "3.4"
 
+# PLAN.md §9/§11: the per-launch token is generated per process, so a second launch that
+# reaches the already-bound port 8000 loads the first instance's UI but authenticates with
+# a different token, and every request 401s. This plugin makes the second launch hand its
+# args to the running instance (which focuses its window) and exit instead of racing it.
+tauri-plugin-single-instance = "2"
+
 # PLAN.md §11.2/§12: the Spotlight-style bar is a vibrancy window. Kept macOS-only so the
 # non-Mac build does not carry an AppKit-blur dependency it cannot use.
 [target.'cfg(target_os = "macos")'.dependencies]

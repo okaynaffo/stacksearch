@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-flush-ui-logs"
+description = "Enables the flush_ui_logs command without any pre-configured scope."
+commands.allow = ["flush_ui_logs"]
+
+[[permission]]
+identifier = "deny-flush-ui-logs"
+description = "Denies the flush_ui_logs command without any pre-configured scope."
+commands.deny = ["flush_ui_logs"]

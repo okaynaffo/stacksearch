@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-core-service-status"
+description = "Enables the core_service_status command without any pre-configured scope."
+commands.allow = ["core_service_status"]
+
+[[permission]]
+identifier = "deny-core-service-status"
+description = "Denies the core_service_status command without any pre-configured scope."
+commands.deny = ["core_service_status"]

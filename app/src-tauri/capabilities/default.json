@@ -3,8 +3,20 @@
   "identifier": "default",
   "description": "Phase 0 capability set: window control, the global hotkey, and opening deep links. Deliberately narrow — §11.3 settings and §6.3 deep links widen it later.",
   "windows": ["main"],
+  "remote": {
+    "urls": ["http://127.0.0.1:8000/*", "http://localhost:8000/*"]
+  },
   "permissions": [
     "core:default",
+    "allow-core-service-status",
+    "allow-core-service-url",
+    "allow-reveal-window",
+    "allow-get-hotkey",
+    "allow-set-hotkey",
+    "allow-open-source",
+    "allow-debug-log-ui",
+    "allow-debug-log-paths",
+    "allow-flush-ui-logs",
     "core:window:allow-show",
     "core:window:allow-hide",
     "core:window:allow-set-focus",

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-core-service-url"
+description = "Enables the core_service_url command without any pre-configured scope."
+commands.allow = ["core_service_url"]
+
+[[permission]]
+identifier = "deny-core-service-url"
+description = "Denies the core_service_url command without any pre-configured scope."
+commands.deny = ["core_service_url"]
