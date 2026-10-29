@@ -24,6 +24,11 @@ import { Kbd, StatusDot } from "./ui";
 
 type View = "search" | "settings";
 
+// macOS overlays the native window controls on our custom top bar, so the brand needs
+// to clear the traffic-light buttons. Other platforms draw a title bar above it.
+const IS_MAC =
+  typeof navigator !== "undefined" && /Macintosh|Mac OS X/.test(navigator.userAgent);
+
 function pausedLabel(reason: string): string {
   if (reason.includes("battery")) return "on battery";
   if (reason.includes("query")) return "answering";
@@ -141,7 +146,10 @@ export default function App() {
 
   return (
     <div className="ss-app">
-      <header className="ss-topbar" data-tauri-drag-region>
+      <header
+        className={IS_MAC ? "ss-topbar ss-topbar-macos" : "ss-topbar"}
+        data-tauri-drag-region
+      >
         <div className="ss-brand" data-tauri-drag-region>
           <span className="ss-brand-mark" aria-hidden="true">
             <SearchIcon size={14} />

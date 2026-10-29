@@ -649,21 +649,31 @@ pub fn run() {
                 err = serde_json::to_string(startup_error.as_deref().unwrap_or("")).unwrap(),
             );
 
-            let window = tauri::WebviewWindowBuilder::new(app, "main", webview_url)
+            let mut window_builder = tauri::WebviewWindowBuilder::new(app, "main", webview_url)
             .initialization_script(&init_script)
             .title("StackSearch")
             .inner_size(760.0, 620.0)
             .resizable(true)
-            // Spotlight-style bar (§11.2): no title bar, floats above other windows, and
-            // blurs what is behind it. Created hidden, then revealed once the service
-            // answers, so the user never sees a window showing a connection error it
-            // could have avoided.
-            .decorations(false)
+            // Spotlight-style bar (§11.2): floats above other windows and blurs what is
+            // behind it. Created hidden, then revealed once the service answers, so the
+            // user never sees a window showing a connection error it could have avoided.
+            // Decorations stay on so the native close/minimize/maximize controls are
+            // reachable; macOS overlays them on the custom top bar instead of adding a
+            // separate title bar above it.
+            .decorations(true)
             .always_on_top(true)
             .transparent(true)
             .shadow(true)
-            .visible(false)
-            .build()?;
+            .visible(false);
+
+            #[cfg(target_os = "macos")]
+            {
+                window_builder = window_builder
+                    .title_bar_style(tauri::TitleBarStyle::Overlay)
+                    .hidden_title(true);
+            }
+
+            let window = window_builder.build()?;
 
             // The blur is applied after creation because it mutates the live NSWindow.
             #[cfg(target_os = "macos")]

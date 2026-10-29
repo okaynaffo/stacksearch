@@ -211,6 +211,10 @@
     -webkit-user-select: none;
   }
 
+  .ss-topbar-macos {
+    padding-left: 78px;
+  }
+
   .ss-brand {
     display: flex;
     min-width: 0;
